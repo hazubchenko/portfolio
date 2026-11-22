@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cisco Workspace Advisor · Hanna Zubchenko</title>
+  <meta name="description" content="A digital twin of meeting rooms, so IT admins can fix them remotely. Case study by Hanna Zubchenko.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="case">
+    <header class="nav">
+      <a href="./" class="nav__item">Hanna Zubchenko</a>
+      <a href="./#about" class="nav__item">About</a>
+      <a href="./#contact" class="nav__item">Contact</a>
+    </header>
+
+    <section class="case__intro">
+      <p class="case__meta">Cisco Workspace Advisor · Shipped 2026</p>
+      <h1 class="case__title">See the room<br>without being there.</h1>
+      <ul class="tags" aria-label="Topics">
+        <li>Spatial UX</li>
+        <li>AI</li>
+        <li>Enterprise IT</li>
+      </ul>
+      <p class="case__lede">A digital twin of meeting rooms, so IT admins can fix them remotely.</p>
+    </section>
+
+    <figure class="media media--wide" style="--media-bg:#000">
+      <video autoplay muted loop playsinline preload="auto"
+             poster="assets/workspace-advisor-poster.jpg"
+             aria-label="A Cisco device scans a meeting room and rebuilds it in 3D in Control Hub">
+        <source src="assets/workspace-advisor-loop.mp4" type="video/mp4">
+      </video>
+    </figure>
+
+    <section class="summary">
+      <div>
+        <h2 class="label">Role</h2>
+        <p class="summary__lead">Lead Product Designer</p>
+        <ul class="plain">
+          <li>Product direction</li>
+          <li>Digital twin integration</li>
+          <li>AI room scanning UX</li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="label">Challenge</h2>
+        <p>IT admins manage meeting rooms they rarely visit. When a room underperforms, a device list is all they have. It can't show what's wrong in the room, or how to fix it.</p>
+      </div>
+    </section>
+
+    <p class="hmw">How might we help admins picture a room they can't visit?</p>
+
+    <figure class="shot">
+      <div class="media" style="--media-bg:#f5f5f5">
+        <img src="assets/old-workspaces-page.webp" alt="Control Hub workspace page before: devices and issues as lists, no view of the room" loading="lazy">
+      </div>
+      <figcaption><span>01</span>Before: the device list</figcaption>
+    </figure>
+
+    <figure class="shot">
+      <div class="media" style="--media-bg:#f5f5f5">
+        <img src="assets/advisor-in-control-hub.webp" alt="Control Hub workspace page with a 3D model of the room and coverage tools for camera, microphone, display and accessibility" loading="lazy">
+      </div>
+      <figcaption><span>02</span>Show the room, not the device data</figcaption>
+    </figure>
+
+    <figure class="shot shot--narrow">
+      <div class="media" style="--media-bg:#efeae4">
+        <img src="assets/workspace-designer.webp" alt="Cisco Workspace Designer showing a 3D room model, above a photo of the real meeting room" loading="lazy">
+      </div>
+      <figcaption><span>03</span>Workspace Designer models + live Control Hub data</figcaption>
+    </figure>
+
+    <figure class="shot">
+      <div class="pair">
+        <div class="media" style="--media-bg:#000">
+          <img src="assets/room-scan.webp" alt="Point cloud of a meeting room captured by the device camera" loading="lazy">
+        </div>
+        <div class="media" style="--media-bg:#000">
+          <img src="assets/room-rebuilt.webp" alt="The scanned room rebuilt as a floor plan in Control Hub, with suggestions" loading="lazy">
+        </div>
+      </div>
+      <figcaption><span>04</span>Room scanning: the device camera rebuilds the room</figcaption>
+    </figure>
+
+    <section class="learnings">
+      <h2 class="label">Learnings</h2>
+      <dl>
+        <div>
+          <dt>Seeing beats reading.</dt>
+          <dd>Admins understood a room's problems faster in 3D than in a device list.</dd>
+        </div>
+        <div>
+          <dt>Recognition builds trust.</dt>
+          <dd>Admins act on a twin that looks like their room, so scanning builds it for them.</dd>
+        </div>
+        <div>
+          <dt>Scanning needs care.</dt>
+          <dd>It uses the room's own cameras, so every scan must be clear and expected.</dd>
+        </div>
+      </dl>
+      <p class="learnings__next">I'm now bringing this approach to onboarding, troubleshooting and optimization.</p>
+    </section>
+
+    <figure class="shot">
+      <button type="button" class="media media--video yt" data-youtube="VxemIPPZhB0" aria-label="Play the Workspace Advisor demo video">
+        <img src="https://i.ytimg.com/vi/VxemIPPZhB0/hqdefault.jpg" alt="" loading="lazy">
+        <span class="yt__play" aria-hidden="true">▶</span>
+      </button>
+      <figcaption><span>Demo</span>Workspace Advisor, by Webex</figcaption>
+    </figure>
+
+    <section class="credits">
+      <h2 class="label">Credits</h2>
+      <dl>
+        <div><dt>Product Manager</dt><dd>Amy Watanabe</dd></div>
+        <div><dt>Workspace Designer</dt><dd>Ole André Bech</dd></div>
+      </dl>
+    </section>
+
+    <a href="./#contact" class="next">
+      <span class="label">Next case</span>
+      <span class="next__title">Cisco Control Hub →</span>
+    </a>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>
