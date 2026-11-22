@@ -54,3 +54,22 @@ document.querySelectorAll('[data-youtube]').forEach((el) => {
 
   observer.observe(el);
 });
+
+// Card -> case page: carry the video's playback position across, so the
+// morphing frame shows one continuous shot instead of restarting.
+const featureTile = document.querySelector('.tile--feature');
+if (featureTile) {
+  featureTile.addEventListener('click', () => {
+    const v = featureTile.querySelector('video');
+    try { if (v) sessionStorage.setItem('advisorVideoTime', String(v.currentTime)); } catch (e) {}
+  });
+}
+const heroVideo = document.querySelector('.cs__hero video');
+if (heroVideo) {
+  let t = null;
+  try { t = sessionStorage.getItem('advisorVideoTime'); sessionStorage.removeItem('advisorVideoTime'); } catch (e) {}
+  if (t !== null) {
+    const seek = () => { heroVideo.currentTime = parseFloat(t) || 0; };
+    if (heroVideo.readyState >= 1) seek(); else heroVideo.addEventListener('loadedmetadata', seek, { once: true });
+  }
+}
