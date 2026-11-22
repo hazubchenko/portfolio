@@ -261,10 +261,9 @@ a { color: inherit; text-decoration: none; }
    Other browsers just open the page normally. */
 @view-transition { navigation: auto; }
 
-.tile--feature .tile__label { view-transition-name: advisor-title; }
-.tile--feature .tile__media { view-transition-name: advisor-media; }
-.cs__title { width: fit-content; view-transition-name: advisor-title; }
-.cs__hero { view-transition-name: advisor-media; }
+/* Each project pairs its own tile with its own page (names set in the HTML),
+   so every title and hero grows from where that project sits on the landing page. */
+.cs__title { width: fit-content; }
 
 ::view-transition-group(*) {
   animation-duration: 700ms;
@@ -274,16 +273,16 @@ a { color: inherit; text-decoration: none; }
 ::view-transition-new(root) { animation-duration: 450ms; }
 
 /* Text: both snapshots stretch to the moving box, so the label scales up as one piece */
-::view-transition-old(advisor-title),
-::view-transition-new(advisor-title) {
+::view-transition-old(.vt-title),
+::view-transition-new(.vt-title) {
   width: 100%;
   height: 100%;
   object-fit: fill;
 }
 
 /* Video: keep it filling its frame while the frame changes shape */
-::view-transition-old(advisor-media),
-::view-transition-new(advisor-media) {
+::view-transition-old(.vt-media),
+::view-transition-new(.vt-media) {
   width: 100%;
   height: 100%;
   object-fit: cover;
