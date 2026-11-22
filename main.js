@@ -99,14 +99,23 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
 
 
 // Theme switch: Light / Dark / System (follows the device). Saved per browser.
+// Re-checked whenever a page is shown, so pages restored by Back/Forward
+// (which skip reloading) and other open tabs always match the saved choice.
+function savedTheme() {
+  try { return localStorage.getItem('theme') || 'system'; } catch (e) { return 'system'; }
+}
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.querySelectorAll('[data-theme-set]').forEach((b) =>
+    b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
+}
 document.querySelectorAll('[data-theme-set]').forEach((btn) => {
-  const sync = () => document.querySelectorAll('[data-theme-set]').forEach((b) =>
-    b.setAttribute('aria-pressed', String(b.dataset.themeSet === document.documentElement.dataset.theme)));
   btn.addEventListener('click', () => {
     const t = btn.dataset.themeSet;
-    document.documentElement.dataset.theme = t;
     try { localStorage.setItem('theme', t); } catch (e) {}
-    sync();
+    applyTheme(t);
   });
-  sync();
 });
+applyTheme(savedTheme());
+window.addEventListener('pageshow', () => applyTheme(savedTheme()));
+window.addEventListener('storage', (e) => { if (e.key === 'theme') applyTheme(savedTheme()); });
