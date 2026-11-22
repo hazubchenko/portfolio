@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About · Hanna Zubchenko</title>
+  <meta name="description" content="About Hanna Zubchenko: product designer working on spatial UX, AI and enterprise tools.">
+  <script>
+    // Apply saved theme before first paint (no flash). "system" follows the device.
+    (function () {
+      var t = 'system';
+      try { t = localStorage.getItem('theme') || 'system'; } catch (e) {}
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css?v=202611222034">
+</head>
+<body class="is-case is-about">
+  <div class="cs">
+    <header class="nav">
+      <a href="./" class="nav__item">Hanna Zubchenko</a>
+      <a href="about.html" class="nav__item">About</a>
+      <a href="./#contact" class="nav__item">Contact</a>
+      <div class="theme" role="group" aria-label="Colour theme">
+        <button type="button" data-theme-set="light">Light</button>
+        <button type="button" data-theme-set="dark">Dark</button>
+        <button type="button" data-theme-set="system">System</button>
+      </div>
+    </header>
+
+    <main class="cs__body">
+      <section class="cs__intro">
+        <div class="cs__heading">
+          <h1 class="cs__title about__title">I design how people understand complex systems, from rooms to software.</h1>
+        </div>
+        <div class="about__photos">
+          <div class="about__photo" aria-label="Portrait placeholder"></div>
+          <div class="about__photo" aria-label="Photo placeholder"></div>
+          <div class="about__photo" aria-label="Photo placeholder"></div>
+        </div>
+      </section>
+
+      <section class="cs__summary">
+        <div class="cs__facts about__facts">
+          <div class="cs__col cs__col--3">
+            <h2 class="cs__label" data-roll>About me</h2>
+            <div class="cs__lines" data-roll data-roll-delay="70">
+              <p>Product designer and design lead, based in Oslo.</p>
+              <p>Trained as an interior architect, I still think in spaces, structure and how people move through them.</p>
+              <p>Today I lead design for IT management tools at Cisco.</p>
+            </div>
+          </div>
+          <div class="cs__col cs__col--3">
+            <h2 class="cs__label" data-roll>Philosophy</h2>
+            <div class="cs__lines" data-roll data-roll-delay="140">
+              <p>Complex work deserves calm tools.</p>
+              <p>I strip away noise so people can see what matters and act on it with confidence.</p>
+            </div>
+          </div>
+          <div class="cs__col cs__col--3">
+            <h2 class="cs__label" data-roll>What I do</h2>
+            <div class="cs__lines" data-roll data-roll-delay="210">
+              <p>01. Product and UX strategy</p>
+              <p>02. Spatial UX and 3D</p>
+              <p>03. AI in enterprise and admin tools</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cs__learnings">
+        <div class="cs__statement cs__statement--top" data-roll>
+          <h2 class="cs__big">Values</h2>
+        </div>
+        <div class="cs__learn-grid">
+          <div class="cs__learn-list" data-roll data-roll-delay="120">
+            <div class="cs__learn"><p>01. Clarity</p><p>If it needs explaining, it isn't finished. I design for the first glance.</p></div>
+            <div class="cs__learn"><p>02. Trust</p><p>People act on what they can verify. I make the evidence visible.</p></div>
+            <div class="cs__learn"><p>03. Shared ownership</p><p>Good products are built together. I bring PMs, engineers and research in early.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cs__learnings">
+        <div class="cs__statement cs__statement--top" data-roll>
+          <h2 class="cs__big">How I work</h2>
+        </div>
+        <div class="cs__learn-grid">
+          <div class="cs__learn-list" data-roll data-roll-delay="120">
+            <div class="cs__learn"><p>01. Understand the real job</p><p>I start with the decision people need to make, not the screen.</p></div>
+            <div class="cs__learn"><p>02. Make it tangible early</p><p>Sketches, prototypes and 3D before specs, so teams can react to something real.</p></div>
+            <div class="cs__learn"><p>03. Ship and learn</p><p>I stay close to engineering through launch, then measure and iterate.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="cs__statement" data-roll>
+        <p class="cs__lines">Open to new roles and conversations. <a href="./#contact">Get in touch.</a></p>
+      </section>
+    </main>
+  </div>
+  <script src="main.js?v=202611222034" defer></script>
+</body>
+</html>

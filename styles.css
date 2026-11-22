@@ -468,3 +468,21 @@ html[data-theme="dark"] body { background-image: url("assets/grain-dark-theme.pn
 .is-leaving .tile.is-chosen { transform: none; }
 /* the old page's leftovers vanish quickly instead of ghosting */
 ::view-transition-old(root) { animation-duration: 180ms; }
+
+/* About page */
+.about__title { max-width: 18ch; line-height: 1.05; }
+.about__photos {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--gap);
+}
+.about__photo { aspect-ratio: 4 / 5; background: color-mix(in srgb, var(--text) 8%, transparent); }
+.about__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); height: auto; }
+.about__facts .cs__col--3 { grid-column: auto; }
+.about__facts .cs__lines p { max-width: 34ch; line-height: 1.4; }
+.is-about .cs__learn p:first-child { white-space: normal; }
+@media (max-width: 800px) {
+  .about__photos { grid-template-columns: 1fr 1fr; }
+  .about__photos .about__photo:first-child { grid-column: 1 / -1; }
+  .about__facts { grid-template-columns: 1fr; }
+}
