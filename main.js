@@ -21,6 +21,7 @@ function loadYouTube(el, { muted }) {
     rel: '0',
     enablejsapi: '1',
   });
+  if (el.dataset.start) params.set('start', el.dataset.start);
   const iframe = document.createElement('iframe');
   iframe.src = `https://www.youtube-nocookie.com/embed/${el.dataset.youtube}?${params}`;
   iframe.title = el.getAttribute('aria-label') || 'Video';
