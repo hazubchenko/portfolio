@@ -1,3 +1,5 @@
+document.documentElement.classList.add('js');
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Respect "reduce motion": show the still poster instead of looping videos.
@@ -73,4 +75,24 @@ if (heroVideo) {
     const seek = () => { heroVideo.currentTime = parseFloat(t) || 0; };
     if (heroVideo.readyState >= 1) seek(); else heroVideo.addEventListener('loadedmetadata', seek, { once: true });
   }
+}
+
+
+// Case page: wipe-reveal each image as it scrolls into view (once).
+// We watch the frame's parent: a fully clipped element doesn't count as visible.
+const revealEls = document.querySelectorAll('.cs__body .cs__frame');
+if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.__revealTargets.forEach((el) => el.classList.add('is-in'));
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -12% 0px' });
+  revealEls.forEach((el) => {
+    el.classList.add('reveal');
+    const watch = el.closest('figure') || el.parentElement;
+    (watch.__revealTargets ||= []).push(el);
+    io.observe(watch);
+  });
 }
