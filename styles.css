@@ -1,0 +1,104 @@
+:root {
+  --bg: #f7f8fa;
+  --text: #0b1220;
+  --accent: #d20a2e;
+  --gap: 16px;
+  --font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Page: nav row (1 part) above work grid (4 parts), filling the viewport */
+.page {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 4fr);
+  gap: var(--gap);
+  padding: var(--gap);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.nav {
+  display: flex;
+  align-self: start;
+}
+.nav__item { flex: 1 1 0; min-width: 0; }
+.nav__item:hover { color: var(--accent); }
+
+/* Work grid: feature tile (2 parts) + side column (1 part) */
+.work {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--gap);
+}
+.work__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.work__pair {
+  display: flex;
+  flex: 1 0 0;
+  gap: var(--gap);
+}
+.work__pair .tile { flex: 1 0 0; min-width: 0; }
+
+.tile {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+.tile__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.15;
+}
+.tile:hover .tile__label { color: var(--accent); }
+
+.tile__media {
+  position: relative;
+  flex: 1 0 0;
+  min-height: 0;
+  background: var(--tile-bg, #d9d9d9);
+  overflow: hidden;
+}
+.tile__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.tile__media img.cover { object-fit: cover; }
+.tile__media img.contain { object-fit: contain; }
+
+/* Tablet and mobile: stack the tiles */
+@media (max-width: 800px) {
+  .page { grid-template-rows: auto auto; align-content: start; gap: 64px; }
+  .nav { gap: var(--gap); }
+  .nav__item { white-space: nowrap; }
+  .work { grid-template-columns: 1fr; gap: 32px; }
+  .work__side, .work__pair { gap: 32px; }
+  .tile, .work__pair { flex: none; }
+  .tile__media { flex: none; aspect-ratio: 4 / 3; }
+}
+
+@media (max-width: 480px) {
+  .work__pair { flex-direction: column; }
+  .work__pair .tile { flex: none; }
+  .tile__label { white-space: normal; }
+}
