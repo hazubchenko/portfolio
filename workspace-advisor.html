@@ -14,9 +14,9 @@
       document.documentElement.dataset.theme = t;
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611221701">
+  <link rel="stylesheet" href="styles.css?v=202611221730">
 </head>
-<body>
+<body class="is-case">
   <div class="cs">
     <header class="nav">
       <a href="./" class="nav__item">Hanna Zubchenko</a>
@@ -77,28 +77,37 @@
       <!-- 1 + 2 side by side (486:954) -->
       <div class="cs__duo">
         <figure class="cs__shot">
-          <figcaption>1. Before: the device list</figcaption>
-          <div class="cs__frame cs__frame--before">
+          <figcaption class="callout"><span class="callout__no">1</span><span class="callout__leader" aria-hidden="true"></span><span>Before: the device list</span></figcaption>
+          <div class="sheet">
+<div class="cs__frame cs__frame--before">
             <img class="cs__fill" src="assets/old-workspaces-page.webp" alt="Control Hub workspace page before: devices and issues as lists, with no view of the room" loading="lazy">
+          </div>
           </div>
         </figure>
         <figure class="cs__shot">
-          <figcaption>2. Show the room, not the device data</figcaption>
-          <div class="cs__frame cs__frame--room">
+          <figcaption class="callout"><span class="callout__no">2</span><span class="callout__leader" aria-hidden="true"></span><span>Show the room, not the device data</span></figcaption>
+          <div class="sheet">
+<div class="cs__frame cs__frame--room">
             <img class="cs__fill" src="assets/advisor-room.webp" alt="Control Hub workspace page with a 3D model of the room and coverage tools for camera, microphone, display and accessibility" loading="lazy">
           </div>
+          </div>
+          <div class="dim" aria-label="Room size"><span>4.5 × 7.1 × 2.67 m</span></div>
         </figure>
       </div>
 
       <!-- 3. Workspace Designer + Control Hub data (486:835) -->
       <figure class="cs__trio">
-        <figcaption class="cs__trio-label">3. Workspace Designer models + live Control Hub data</figcaption>
+        <figcaption class="callout cs__trio-label"><span class="callout__no">3</span><span class="callout__leader" aria-hidden="true"></span><span>Workspace Designer models + live Control Hub data</span></figcaption>
         <div class="cs__trio-media">
-          <div class="cs__frame cs__frame--designer">
+          <div class="sheet sheet--designer">
+<div class="cs__frame cs__frame--designer">
             <img class="cs__fill" src="assets/workspace-designer.webp" alt="Cisco Workspace Designer showing a 3D room model, above a photo of the real meeting room" loading="lazy">
           </div>
-          <div class="cs__frame cs__frame--inventory">
+          </div>
+          <div class="sheet sheet--inventory">
+<div class="cs__frame cs__frame--inventory">
             <img class="cs__fill" src="assets/control-hub-inventory.webp" alt="Control Hub workspace inventory: type, capacity, location and floor data" loading="lazy">
+          </div>
           </div>
         </div>
       </figure>
@@ -128,13 +137,15 @@
 
       <!-- 5. Demo (486:793) -->
       <figure class="cs__shot">
-        <figcaption>5. Workspace Advisor demo</figcaption>
-        <button type="button" class="cs__frame cs__frame--demo yt" data-youtube="VxemIPPZhB0" data-start="6" aria-label="Play the Workspace Advisor demo video">
+        <figcaption class="callout"><span class="callout__no">5</span><span class="callout__leader" aria-hidden="true"></span><span>Workspace Advisor demo</span></figcaption>
+        <div class="sheet">
+<button type="button" class="cs__frame cs__frame--demo yt" data-youtube="VxemIPPZhB0" data-start="6" aria-label="Play the Workspace Advisor demo video">
           <img class="cs__fill" src="assets/demo-poster.webp" alt="" loading="lazy">
         </button>
+          </div>
       </figure>
     </main>
   </div>
-  <script src="main.js?v=202611221701" defer></script>
+  <script src="main.js?v=202611221730" defer></script>
 </body>
 </html>
