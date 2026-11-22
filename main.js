@@ -158,10 +158,8 @@ if (rollEls.length && 'IntersectionObserver' in window && !reduceMotion) {
   const stops = () => [
     0, // the page as it opens
     centre((() => { const a = rect('.cs__facts'), b = rect('.cs__statement--hmw .cs__big'); return a && b && { top: a.top, bottom: b.bottom }; })()),
-    ...[...document.querySelectorAll('.chapter')].map((c) => {
-      const r = [...c.querySelectorAll('.cs__frame')].map((e) => e.getBoundingClientRect());
-      return centre({ top: Math.min(...r.map((x) => x.top)), bottom: Math.max(...r.map((x) => x.bottom)) });
-    }),
+    centre(rect('.cs__duo .cs__frame')),
+    centre(rect('.cs__trio .cs__frame')),
     centre(rect('.cs__learnings')),
     centre(rect('.cs__body > .cs__shot .cs__frame')),
   ].filter((y) => y !== null && y !== undefined);
