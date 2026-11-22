@@ -457,26 +457,3 @@ html[data-theme="dark"] body { background-image: url("assets/grain-dark-theme.pn
   .js [data-roll].is-in > *, .js [data-roll].is-in:not(:has(> *)),
   .is-landing .tile__label, .is-landing::before, .is-case::before { animation: none; }
 }
-
-/* ---------- Story scrolling (case page) ----------
-   Gentle "proximity" snapping: scrolling stays free, but when you stop near a
-   chapter of the story, the page glides to centre it. Desktop only. */
-@media (min-width: 801px) and (min-height: 600px) {
-  html:has(body.is-case) { scroll-snap-type: y proximity; }
-  /* first stop = the page as it opens (title 130px below the top, as in Figma) */
-  .cs__intro { scroll-snap-align: start; scroll-margin-top: 130px; }
-  /* balance the 150px space under the question, so the text itself is centred */
-  .cs__summary { scroll-margin-top: 150px; }
-  /* captions sit 30px above images: balance below, so the pictures themselves are centred */
-  .cs__duo, .cs__trio, .cs__body > .cs__shot { scroll-margin-bottom: 30px; }
-  /* the before/after row is a key beat: a quick fling won't skip past it */
-  .cs__duo { scroll-snap-stop: always; }
-  .cs__summary,
-  .cs__duo,
-  .cs__trio,
-  .cs__learnings,
-  .cs__body > .cs__shot { scroll-snap-align: center; }
-}
-@media (prefers-reduced-motion: reduce) {
-  html:has(body.is-case) { scroll-snap-type: none; }
-}

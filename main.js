@@ -139,3 +139,63 @@ if (rollEls.length && 'IntersectionObserver' in window && !reduceMotion) {
 } else {
   rollEls.forEach((el) => el.classList.add('is-in'));
 }
+
+
+// Story scrolling (case page): after you stop scrolling, if a chapter is close
+// to the centre, the page eases it into place slowly (no fast browser snap).
+// Any wheel, touch, key or click during the glide hands control straight back.
+(() => {
+  if (!document.body.classList.contains('is-case') || reduceMotion) return;
+  const desktop = window.matchMedia('(min-width: 801px) and (min-height: 600px) and (hover: hover) and (pointer: fine)');
+  const rect = (sel) => {
+    const els = [...document.querySelectorAll(sel)];
+    if (!els.length) return null;
+    const rs = els.map((e) => e.getBoundingClientRect());
+    return { top: Math.min(...rs.map((r) => r.top)), bottom: Math.max(...rs.map((r) => r.bottom)) };
+  };
+  // Each stop returns the scrollY that centres that chapter's content.
+  const centre = (r) => r && scrollY + (r.top + r.bottom) / 2 - innerHeight / 2;
+  const stops = () => [
+    0, // the page as it opens
+    centre((() => { const a = rect('.cs__facts'), b = rect('.cs__statement--hmw .cs__big'); return a && b && { top: a.top, bottom: b.bottom }; })()),
+    centre(rect('.cs__duo .cs__frame')),
+    centre(rect('.cs__trio .cs__frame')),
+    centre(rect('.cs__learnings')),
+    centre(rect('.cs__body > .cs__shot .cs__frame')),
+  ].filter((y) => y !== null && y !== undefined);
+
+  let idle, anim, gliding = false;
+  const ease = (t) => 1 - Math.pow(1 - t, 3); // soft ease-out, like the rest of the site
+  const stopGlide = () => { if (anim) cancelAnimationFrame(anim); anim = null; gliding = false; };
+
+  function glideTo(target) {
+    const from = scrollY, dist = target - from;
+    const dur = Math.min(900, 450 + Math.abs(dist) * 1.2); // slower for longer moves
+    const t0 = performance.now();
+    gliding = true;
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / dur);
+      window.scrollTo(0, from + dist * ease(t));
+      if (t < 1) anim = requestAnimationFrame(step); else stopGlide();
+    };
+    anim = requestAnimationFrame(step);
+  }
+
+  function settle() {
+    if (!desktop.matches) return;
+    const y = scrollY;
+    let best = null;
+    for (const s of stops()) if (best === null || Math.abs(s - y) < Math.abs(best - y)) best = s;
+    const d = Math.abs(best - y);
+    // only help when you're already close (within a fifth of the screen), never yank
+    if (d > 3 && d < innerHeight * 0.2) glideTo(Math.max(0, best));
+  }
+
+  window.addEventListener('scroll', () => {
+    if (gliding) return;
+    clearTimeout(idle);
+    idle = setTimeout(settle, 220); // wait until trackpad momentum has fully ended
+  }, { passive: true });
+  ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((ev) =>
+    window.addEventListener(ev, () => { if (gliding) stopGlide(); clearTimeout(idle); }, { passive: true }));
+})();
