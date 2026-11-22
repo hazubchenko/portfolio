@@ -34,7 +34,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-self: start;
 }
-.nav__item { flex: 1 1 0; min-width: 0; }
+.nav__item { display: block; flex: 1 1 0; min-width: 0; line-height: 1; }
 
 /* Work grid: feature tile (2 parts) + side column (1 part) */
 .work {
@@ -81,161 +81,99 @@ a { color: inherit; text-decoration: none; }
 .tile__media .cover--right { object-position: right center; }
 .tile__media .contain { object-fit: contain; }
 
-/* ---------- Case study page ---------- */
-.case {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: var(--gap) var(--gap) 64px;
-  line-height: 1.45;
-}
-.case > * + * { margin-top: 96px; }
-.case > .nav + * { margin-top: 120px; }
-.case .nav { line-height: 1; }
+/* ---------- Case study page (Figma 479:450, 1920 frame) ---------- */
+.cs { display: flex; flex-direction: column; gap: 100px; padding: var(--gap); }
+.cs .nav { align-self: stretch; }
+.cs__spacer { height: 14px; }
+.cs__body { display: flex; flex-direction: column; gap: 100px; }
+.cs p, .cs h1, .cs h2, .cs figcaption { font-weight: 300; line-height: 1; }
 
-.label {
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.6;
-}
-
-.case__intro { max-width: 900px; }
-.case__meta { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.6; }
-.case__title {
-  margin-top: 20px;
-  font-size: clamp(40px, 6.5vw, 88px);
-  font-weight: 300;
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-}
-.tags {
+.cs__intro { display: flex; flex-direction: column; gap: 32px; }
+.cs__heading { display: flex; flex-direction: column; gap: 16px; }
+.cs .cs__title, .cs .cs__big { font-size: 64px; font-weight: 400; }
+.cs__subtitle { font-size: 24px; }
+.cs__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 28px;
-  padding: 0;
+  gap: 24px;
+  padding: 16px 0 0;
   list-style: none;
-}
-.tags li {
-  padding: 6px 12px;
-  border: 1px solid rgba(11, 18, 32, 0.18);
-  border-radius: 999px;
-  font-size: 13px;
   line-height: 1;
+  white-space: nowrap;
 }
-.case__lede { margin-top: 24px; max-width: 34ch; font-size: 20px; }
+.cs__hero { position: relative; aspect-ratio: 1920 / 1080; background: #d9d9d9; overflow: hidden; }
+.cs__fill { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
 
-/* Media frames */
-.media {
-  position: relative;
-  display: block;
-  width: 100%;
-  background: var(--media-bg, #e9edf3);
-  overflow: hidden;
-}
-.media img, .media video { display: block; width: 100%; height: auto; }
-.media--wide { aspect-ratio: 16 / 9; }
-.media--wide video { height: 100%; object-fit: cover; }
-
-/* Summary: role + challenge side by side */
-.summary {
+/* Role + challenge: 1fr 1fr 3fr, first column empty */
+.cs__facts {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: 32px var(--gap);
-  font-size: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 3fr);
+  gap: var(--gap);
+  align-items: start;
+  height: 312px;
+  padding: 50px 0;
 }
-.summary .label { margin-bottom: 14px; }
-.summary p { max-width: 42ch; }
-.summary__lead { font-weight: 400; margin-bottom: 8px; }
-.plain { padding: 0; list-style: none; }
+.cs__col { display: flex; flex-direction: column; gap: 16px; }
+.cs__col--2 { grid-column: 2; }
+.cs__col--3 { grid-column: 3; }
+.cs__label { font-size: 14px; }
+.cs__lines { display: flex; flex-direction: column; gap: 12px; font-size: 24px; }
 
-.hmw {
-  max-width: 26ch;
-  text-wrap: balance;
-  margin-inline: auto;
-  text-align: center;
-  font-size: clamp(26px, 3.2vw, 40px);
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-}
-
-/* Numbered shots */
-.shot figcaption {
-  display: flex;
-  gap: 16px;
-  margin-top: 12px;
-}
-.shot figcaption span { min-width: 2.5em; opacity: 0.5; }
-.shot--narrow { max-width: 560px; margin-inline: auto; }
-.pair {
+/* Big statements: 1fr 3fr 1fr, text in the middle column */
+.cs__statement {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr) minmax(0, 1fr);
+  gap: 10px;
+  padding: 50px 0;
+}
+.cs__statement > * { grid-column: 2; }
+.cs__statement--top { padding-bottom: 0; }
+
+/* Numbered shots: centered label, image 1440 of 1888 */
+.cs__shot { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.cs__frame { position: relative; overflow: hidden; width: 76.2712%; }
+.cs__frame--before { aspect-ratio: 1440 / 746; }
+.cs__frame--room { aspect-ratio: 1440 / 815; }
+
+
+/* 3: grid 1fr 2fr 2fr 1fr */
+.cs__trio {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr);
   gap: var(--gap);
 }
+.cs__trio-label { grid-column: 2 / span 2; }
+.cs__trio-media { display: contents; }
+.cs__trio .cs__frame { width: 100%; align-self: start; }
+.cs__frame--designer { grid-column: 2; aspect-ratio: 1536 / 2048; }
+.cs__frame--inventory { grid-column: 3; aspect-ratio: 1248 / 803.6; }
 
-/* Learnings */
-.learnings dl {
+/* Learnings: 1fr 4fr, each row 1fr 3fr */
+.cs__learn-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px var(--gap);
-  margin-top: 20px;
-  font-size: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 4fr);
+  gap: var(--gap);
+  padding: 50px 0;
 }
-.learnings dt { font-weight: 400; margin-bottom: 6px; }
-.learnings dd { margin: 0; max-width: 32ch; }
-.learnings__next { margin-top: 40px; font-size: 18px; }
+.cs__learn-list { grid-column: 2; display: flex; flex-direction: column; gap: 24px; }
+.cs__learn {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  gap: var(--gap);
+  font-size: 24px;
+}
+.cs__learn p:first-child { white-space: nowrap; }
 
-/* YouTube click-to-load */
-.yt {
-  aspect-ratio: 16 / 9;
+/* 5: demo, full width */
+.cs__frame--demo {
+  width: 100%;
+  aspect-ratio: 1800 / 1007;
   padding: 0;
   border: 0;
+  background: #1e2235;
   cursor: pointer;
-  font: inherit;
-  color: #fff;
 }
-.yt img { height: 100%; object-fit: cover; }
 .yt iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.yt__play {
-  position: absolute;
-  top: 50%; left: 50%;
-  display: grid;
-  place-items: center;
-  width: 72px; height: 72px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: var(--accent);
-  font-size: 22px;
-  padding-left: 4px;
-}
-.yt:hover .yt__play, .yt:focus-visible .yt__play { transform: translate(-50%, -50%) scale(1.06); }
-
-/* Credits */
-.credits dl { margin-top: 20px; }
-.credits dl div {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: var(--gap);
-  padding: 12px 0;
-  border-top: 1px solid rgba(11, 18, 32, 0.12);
-}
-.credits dt { opacity: 0.6; }
-.credits dd { margin: 0; }
-
-/* Next case */
-.next {
-  display: block;
-  padding-top: 32px;
-  border-top: 1px solid rgba(11, 18, 32, 0.12);
-}
-.next__title {
-  display: block;
-  margin-top: 12px;
-  font-size: clamp(28px, 4vw, 56px);
-  letter-spacing: -0.02em;
-}
-.next:hover .next__title { color: var(--accent); }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
@@ -250,10 +188,21 @@ a { color: inherit; text-decoration: none; }
   .tile, .work__pair { flex: none; }
   .tile__media { flex: none; aspect-ratio: 4 / 3; }
 
-  .case > * + * { margin-top: 64px; }
-  .case > .nav + * { margin-top: 72px; }
-  .summary, .learnings dl { grid-template-columns: 1fr; }
-  .pair { grid-template-columns: 1fr; }
+
+  /* Case study: not in Figma (desktop only), stacked fallback */
+  .cs, .cs__body { gap: 64px; }
+  .cs__spacer { display: none; }
+  .cs .cs__title, .cs .cs__big { font-size: 40px; line-height: 1.05; }
+  .cs__subtitle, .cs__lines, .cs__learn { font-size: 20px; line-height: 1.2; }
+  .cs__facts, .cs__statement, .cs__trio, .cs__learn-grid, .cs__learn { grid-template-columns: 1fr; }
+  .cs__facts { height: auto; gap: 40px; padding: 0; }
+  .cs__statement { padding: 0; }
+  .cs__col--2, .cs__col--3, .cs__statement > *, .cs__trio-label,
+  .cs__frame--designer, .cs__frame--inventory, .cs__learn-list { grid-column: 1; }
+  .cs__frame { width: 100%; }
+  .cs__learn { gap: 8px; }
+  .cs__learn p:first-child { white-space: normal; font-weight: 400; }
+  .cs__learn-grid { padding: 0; }
 }
 
 @media (max-width: 480px) {
