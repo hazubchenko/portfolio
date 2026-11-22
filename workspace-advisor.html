@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="color-scheme" content="light dark">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cisco Workspace Advisor · Hanna Zubchenko</title>
   <meta name="description" content="A digital twin of meeting rooms in Cisco Control Hub. Case study by Hanna Zubchenko.">
+  <script>
+    // Apply saved theme before first paint (no flash). "system" follows the device.
+    (function () {
+      var t = 'system';
+      try { t = localStorage.getItem('theme') || 'system'; } catch (e) {}
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,6 +22,11 @@
       <a href="./" class="nav__item">Hanna Zubchenko</a>
       <a href="./#about" class="nav__item">About</a>
       <a href="./#contact" class="nav__item">Contact</a>
+      <div class="theme" role="group" aria-label="Colour theme">
+        <button type="button" data-theme-set="light">Light</button>
+        <button type="button" data-theme-set="dark">Dark</button>
+        <button type="button" data-theme-set="system">System</button>
+      </div>
     </header>
 
     <main class="cs__body">

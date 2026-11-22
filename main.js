@@ -96,3 +96,17 @@ if (revealEls.length && 'IntersectionObserver' in window && !reduceMotion) {
     io.observe(watch);
   });
 }
+
+
+// Theme switch: Light / Dark / System (follows the device). Saved per browser.
+document.querySelectorAll('[data-theme-set]').forEach((btn) => {
+  const sync = () => document.querySelectorAll('[data-theme-set]').forEach((b) =>
+    b.setAttribute('aria-pressed', String(b.dataset.themeSet === document.documentElement.dataset.theme)));
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.themeSet;
+    document.documentElement.dataset.theme = t;
+    try { localStorage.setItem('theme', t); } catch (e) {}
+    sync();
+  });
+  sync();
+});
