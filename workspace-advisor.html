@@ -14,7 +14,7 @@
       document.documentElement.dataset.theme = t;
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611222001">
+  <link rel="stylesheet" href="styles.css?v=202611222017">
 </head>
 <body class="is-case">
   <div class="cs">
@@ -81,41 +81,43 @@
         </div>
       </section>
 
-      <!-- 1 + 2 side by side (486:954) -->
-      <div class="cs__duo">
-        <figure class="cs__shot">
-          <figcaption data-roll class="caption"><span class="caption__no">1</span><span>Before: the device list</span></figcaption>
-          <div class="sheet">
-<div class="cs__frame cs__frame--before">
-            <img class="cs__fill" src="assets/old-workspaces-page.webp" alt="Control Hub workspace page before: devices and issues as lists, with no view of the room" loading="lazy">
-          </div>
-          </div>
-        </figure>
-        <figure class="cs__shot">
-          <figcaption data-roll class="caption"><span class="caption__no">2</span><span>Show the room, not the device data</span></figcaption>
-          <div class="sheet">
-<div class="cs__frame cs__frame--room">
-            <img class="cs__fill" src="assets/advisor-room.webp" alt="Control Hub workspace page with a 3D model of the room and coverage tools for camera, microphone, display and accessibility" loading="lazy">
-          </div>
-          </div>
-        </figure>
-      </div>
-
-      <!-- 3. Workspace Designer + Control Hub data (486:835) -->
-      <figure class="cs__trio">
-        <figcaption data-roll class="caption cs__trio-label"><span class="caption__no">3</span><span>Workspace Designer models + live Control Hub data</span></figcaption>
-        <div class="cs__trio-media">
-          <div class="sheet sheet--designer">
-<div class="cs__frame cs__frame--designer">
-            <img class="cs__fill" src="assets/workspace-designer.webp" alt="Cisco Workspace Designer showing a 3D room model, above a photo of the real meeting room" loading="lazy">
-          </div>
-          </div>
-          <div class="sheet sheet--inventory">
-<div class="cs__frame cs__frame--inventory">
-            <img class="cs__fill" src="assets/control-hub-inventory.webp" alt="Control Hub workspace inventory: type, capacity, location and floor data" loading="lazy">
-          </div>
-          </div>
+      <!-- Story chapters -->
+      <figure class="cs__shot chapter">
+        <figcaption data-roll class="caption"><span class="caption__no">1</span><span>Today: every clue lives somewhere else</span></figcaption>
+        <div class="chapter__pair">
+          <div class="sheet"><div class="cs__frame drawing" style="aspect-ratio:881 / 791">
+            <img class="cs__fill" src="assets/draw-room.webp" alt="Pencil drawing of the meeting room, with no information about it" loading="lazy">
+          </div></div>
+          <div class="sheet"><div class="cs__frame " style="aspect-ratio:1351 / 700">
+            <img class="cs__fill" src="assets/old-workspaces-page.webp" alt="Control Hub workspace page before: devices and issues as separate lists" loading="lazy">
+          </div></div>
         </div>
+      </figure>
+
+      <figure class="cs__shot chapter">
+        <figcaption data-roll class="caption"><span class="caption__no">2</span><span>Together, the clues point to the cause</span></figcaption>
+        <div class="chapter__pair">
+          <div class="sheet"><div class="cs__frame drawing" style="aspect-ratio:864 / 791">
+            <img class="cs__fill" src="assets/draw-coverage.webp" alt="Pencil drawing of the same room: the camera’s view covers only the seats near the screens" loading="lazy">
+          </div></div>
+          <div class="sheet"><div class="cs__frame " style="aspect-ratio:1258 / 712">
+            <img class="cs__fill" src="assets/advisor-room.webp" alt="Control Hub workspace page with the room in 3D and coverage tools" loading="lazy">
+          </div></div>
+        </div>
+      </figure>
+
+      <figure class="cs__shot chapter chapter--single chapter--tall">
+        <figcaption data-roll class="caption"><span class="caption__no">3</span><span>Fix it remotely, then check it in 3D</span></figcaption>
+          <div class="sheet"><div class="cs__frame drawing" style="aspect-ratio:526 / 784">
+            <img class="cs__fill" src="assets/draw-plan.webp" alt="Pencil floor plan of the room: the meeting zone moved to cover the whole table" loading="lazy">
+          </div></div>
+      </figure>
+
+      <figure class="cs__shot chapter chapter--single chapter--tall">
+        <figcaption data-roll class="caption"><span class="caption__no">4</span><span>A real scan, live data, a familiar model</span></figcaption>
+          <div class="sheet"><div class="cs__frame drawing" style="aspect-ratio:553 / 862">
+            <img class="cs__fill" src="assets/draw-layers.webp" alt="Exploded pencil drawing: a point-cloud scan, a layer of device data, and the finished room model" loading="lazy">
+          </div></div>
       </figure>
 
       <!-- Learnings (486:867) -->
@@ -152,6 +154,6 @@
       </figure>
     </main>
   </div>
-  <script src="main.js?v=202611222001" defer></script>
+  <script src="main.js?v=202611222017" defer></script>
 </body>
 </html>
