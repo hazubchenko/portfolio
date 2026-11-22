@@ -383,17 +383,3 @@ a { color: inherit; text-decoration: none; }
 /* Image captions: number + label, quiet and technical */
 .caption { display: inline-flex; gap: 12px; line-height: 1; }
 .caption__no { opacity: 0.5; }
-
-/* Accent font: ISO 3098 technical lettering (osifont, LGPL-3 with font exception),
-   used only for image captions and small section labels */
-@font-face {
-  font-family: "osifont";
-  src: url("assets/osifont.woff2") format("woff2");
-  font-display: swap;
-}
-.caption,
-.cs__label {
-  font-family: "osifont", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 400;
-}
-.cs__label { letter-spacing: 0.06em; }
