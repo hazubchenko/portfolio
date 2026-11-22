@@ -395,3 +395,26 @@ html[data-theme="dark"] body { background-image: url("assets/grain-dark-theme.pn
 @media (prefers-color-scheme: dark) {
   html[data-theme="system"] body { background-image: url("assets/grain-dark-theme.png"); }
 }
+
+/* Tags roll out from under the title on arrival, one after another.
+   The row clips them, so they appear to slide out of the title's baseline. */
+.cs__tags {
+  overflow: hidden;
+  padding-bottom: 4px;
+  margin-bottom: -4px;
+}
+.cs__tags li {
+  animation: tag-roll-out 700ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: calc(380ms + var(--i, 0) * 70ms);
+}
+.cs__tags li:nth-child(2) { --i: 1; }
+.cs__tags li:nth-child(3) { --i: 2; }
+.cs__tags li:nth-child(4) { --i: 3; }
+.cs__tags li:nth-child(5) { --i: 4; }
+@keyframes tag-roll-out {
+  from { opacity: 0; transform: translateY(-120%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cs__tags li { animation: none; }
+}
