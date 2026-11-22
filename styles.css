@@ -96,6 +96,10 @@ a { color: inherit; text-decoration: none; }
 .tile__media .cover--right { object-position: right center; }
 .tile__media .contain { object-fit: contain; }
 
+/* Crop the video's edges slightly (hides outlines at the frame border) */
+.tile__media video,
+.cs__hero video { transform: scale(1.02); }
+
 /* ---------- Case study page (Figma 479:450, 1920 frame) ---------- */
 .cs { display: flex; flex-direction: column; gap: 100px; padding: var(--gap); }
 .cs .nav { align-self: stretch; }
