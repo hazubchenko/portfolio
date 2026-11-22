@@ -418,3 +418,42 @@ html[data-theme="dark"] body { background-image: url("assets/grain-dark-theme.pn
 @media (prefers-reduced-motion: reduce) {
   .cs__tags li { animation: none; }
 }
+
+
+/* ---------- Micro-motion: the same calm roll-out, everywhere it helps ----------
+   Small (8px), soft, ordered, once only. Nothing loops, nothing parallaxes. */
+@keyframes roll-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* Scroll-triggered groups: children appear one after another */
+.js [data-roll] > *,
+.js [data-roll]:not(:has(> *)) { opacity: 0; }
+.js [data-roll].is-in > *,
+.js [data-roll].is-in:not(:has(> *)) {
+  animation: roll-in 700ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: calc(var(--roll-delay, 0ms) + var(--i, 0) * 70ms);
+}
+
+/* Landing: project labels roll out in reading order on load */
+.is-landing .tile__label {
+  animation: roll-in 700ms cubic-bezier(0.33, 1, 0.68, 1) both;
+  animation-delay: 250ms;
+}
+.is-landing .work__side .tile:first-child .tile__label { animation-delay: 320ms; }
+.is-landing .work__pair .tile:first-child .tile__label { animation-delay: 390ms; }
+.is-landing .work__pair .tile:last-child .tile__label { animation-delay: 460ms; }
+
+/* Drafting grid draws itself down the sheet once per page */
+.is-landing::before,
+.is-case::before { animation: grid-draw 1400ms cubic-bezier(0.65, 0, 0.35, 1) 100ms both; }
+@keyframes grid-draw {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-roll] > *, .js [data-roll]:not(:has(> *)) { opacity: 1; }
+  .js [data-roll].is-in > *, .js [data-roll].is-in:not(:has(> *)),
+  .is-landing .tile__label, .is-landing::before, .is-case::before { animation: none; }
+}

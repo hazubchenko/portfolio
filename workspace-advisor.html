@@ -14,7 +14,7 @@
       document.documentElement.dataset.theme = t;
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611221805">
+  <link rel="stylesheet" href="styles.css?v=202611221808">
 </head>
 <body class="is-case">
   <div class="cs">
@@ -53,23 +53,23 @@
       <section class="cs__summary">
         <div class="cs__facts">
           <div class="cs__col cs__col--2">
-            <h2 class="cs__label">My role</h2>
-            <div class="cs__lines">
+            <h2 class="cs__label" data-roll>My role</h2>
+            <div class="cs__lines" data-roll data-roll-delay="70">
               <p>Product direction</p>
               <p>Digital twin integration</p>
               <p>AI room scanning UX</p>
             </div>
           </div>
           <div class="cs__col cs__col--3">
-            <h2 class="cs__label">Challenge</h2>
-            <div class="cs__lines">
+            <h2 class="cs__label" data-roll data-roll-delay="140">Challenge</h2>
+            <div class="cs__lines" data-roll data-roll-delay="210">
               <p>IT admins manage meeting rooms they rarely visit.</p>
               <p>When a room underperforms, a device list is all they have.</p>
               <p>It can't show what's wrong in the room, or how to fix it.</p>
             </div>
           </div>
         </div>
-        <div class="cs__statement cs__statement--hmw">
+        <div class="cs__statement cs__statement--hmw" data-roll>
           <p class="cs__big">How might we help admins picture a room they can't visit?</p>
         </div>
       </section>
@@ -77,7 +77,7 @@
       <!-- 1 + 2 side by side (486:954) -->
       <div class="cs__duo">
         <figure class="cs__shot">
-          <figcaption class="caption"><span class="caption__no">1</span>Before: the device list</figcaption>
+          <figcaption data-roll class="caption"><span class="caption__no">1</span><span>Before: the device list</span></figcaption>
           <div class="sheet">
 <div class="cs__frame cs__frame--before">
             <img class="cs__fill" src="assets/old-workspaces-page.webp" alt="Control Hub workspace page before: devices and issues as lists, with no view of the room" loading="lazy">
@@ -85,7 +85,7 @@
           </div>
         </figure>
         <figure class="cs__shot">
-          <figcaption class="caption"><span class="caption__no">2</span>Show the room, not the device data</figcaption>
+          <figcaption data-roll class="caption"><span class="caption__no">2</span><span>Show the room, not the device data</span></figcaption>
           <div class="sheet">
 <div class="cs__frame cs__frame--room">
             <img class="cs__fill" src="assets/advisor-room.webp" alt="Control Hub workspace page with a 3D model of the room and coverage tools for camera, microphone, display and accessibility" loading="lazy">
@@ -96,7 +96,7 @@
 
       <!-- 3. Workspace Designer + Control Hub data (486:835) -->
       <figure class="cs__trio">
-        <figcaption class="caption cs__trio-label"><span class="caption__no">3</span>Workspace Designer models + live Control Hub data</figcaption>
+        <figcaption data-roll class="caption cs__trio-label"><span class="caption__no">3</span><span>Workspace Designer models + live Control Hub data</span></figcaption>
         <div class="cs__trio-media">
           <div class="sheet sheet--designer">
 <div class="cs__frame cs__frame--designer">
@@ -113,11 +113,11 @@
 
       <!-- Learnings (486:867) -->
       <section class="cs__learnings">
-        <div class="cs__statement cs__statement--top">
+        <div class="cs__statement cs__statement--top" data-roll>
           <h2 class="cs__big">Learnings</h2>
         </div>
         <div class="cs__learn-grid">
-          <div class="cs__learn-list">
+          <div class="cs__learn-list" data-roll data-roll-delay="120">
             <div class="cs__learn">
               <p>Seeing beats reading</p>
               <p>Admins understood a room's problems faster in 3D than in a regular text-based status.</p>
@@ -136,7 +136,7 @@
 
       <!-- 5. Demo (486:793) -->
       <figure class="cs__shot">
-        <figcaption class="caption"><span class="caption__no">5</span>Workspace Advisor demo</figcaption>
+        <figcaption data-roll class="caption"><span class="caption__no">5</span><span>Workspace Advisor demo</span></figcaption>
         <div class="sheet">
 <button type="button" class="cs__frame cs__frame--demo yt" data-youtube="VxemIPPZhB0" data-start="6" aria-label="Play the Workspace Advisor demo video">
           <img class="cs__fill" src="assets/demo-poster.webp" alt="" loading="lazy">
@@ -145,6 +145,6 @@
       </figure>
     </main>
   </div>
-  <script src="main.js?v=202611221805" defer></script>
+  <script src="main.js?v=202611221808" defer></script>
 </body>
 </html>

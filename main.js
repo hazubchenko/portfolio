@@ -119,3 +119,23 @@ document.querySelectorAll('[data-theme-set]').forEach((btn) => {
 applyTheme(savedTheme());
 window.addEventListener('pageshow', () => applyTheme(savedTheme()));
 window.addEventListener('storage', (e) => { if (e.key === 'theme') applyTheme(savedTheme()); });
+
+
+// Micro-motion: [data-roll] groups roll their children in, in order, once visible.
+const rollEls = document.querySelectorAll('[data-roll]');
+if (rollEls.length && 'IntersectionObserver' in window && !reduceMotion) {
+  const rio = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('is-in');
+      rio.unobserve(e.target);
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+  rollEls.forEach((el) => {
+    [...el.children].forEach((c, i) => c.style.setProperty('--i', i));
+    if (el.dataset.rollDelay) el.style.setProperty('--roll-delay', el.dataset.rollDelay + 'ms');
+    rio.observe(el);
+  });
+} else {
+  rollEls.forEach((el) => el.classList.add('is-in'));
+}
