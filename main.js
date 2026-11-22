@@ -199,3 +199,19 @@ if (rollEls.length && 'IntersectionObserver' in window && !reduceMotion) {
   ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach((ev) =>
     window.addEventListener(ev, () => { if (gliding) stopGlide(); clearTimeout(idle); }, { passive: true }));
 })();
+
+// Landing: when a project is opened, fade the other cards out first.
+document.querySelectorAll('.is-landing .tile[href$=".html"]').forEach((tile) => {
+  tile.addEventListener('click', (e) => {
+    if (reduceMotion || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    tile.classList.add('is-chosen');
+    document.body.classList.add('is-leaving');
+    setTimeout(() => { location.href = tile.href; }, 300);
+  });
+});
+// Coming back (Back button restores the page from memory): show all cards again.
+window.addEventListener('pageshow', () => {
+  document.body.classList.remove('is-leaving');
+  document.querySelectorAll('.tile.is-chosen').forEach((t) => t.classList.remove('is-chosen'));
+});
