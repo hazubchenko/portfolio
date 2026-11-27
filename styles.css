@@ -8,9 +8,9 @@
 }
 
 /* ---------- Themes: dark simply swaps background and text ---------- */
-html[data-theme="dark"] { --bg: #0b1220; --text: #f7f8fa; color-scheme: dark; }
+html[data-theme="dark"] { --bg: #0b1220; --text: #f7f8fa; --accent: #ff5a6e; --plate: #161d2b; color-scheme: dark; }
 @media (prefers-color-scheme: dark) {
-  html[data-theme="system"] { --bg: #0b1220; --text: #f7f8fa; color-scheme: dark; }
+  html[data-theme="system"] { --bg: #0b1220; --text: #f7f8fa; --accent: #ff5a6e; --plate: #161d2b; color-scheme: dark; }
 }
 
 * { box-sizing: border-box; margin: 0; }
@@ -144,6 +144,8 @@ a { color: inherit; text-decoration: none; }
 }
 .cs__body { display: flex; flex-direction: column; gap: 100px; }
 .cs p, .cs h1, .cs h2, .cs figcaption { font-weight: 300; line-height: 1; }
+.cs .cs__lines p, .cs .cs__learn p, .cs .cta, .cs .contact__value { line-height: 1.45; }
+.cs .cs__big, .cs .about__title, .cs .contact__title { line-height: 1.05; }
 
 .cs__intro { display: flex; flex-direction: column; gap: 32px; }
 .cs__heading { display: flex; flex-direction: column; gap: 16px; }
@@ -544,10 +546,11 @@ html[data-theme="dark"] body { background-image: url("assets/grain-dark-theme.pn
   flex-direction: column;
   gap: 6px;
   max-width: 44ch;
+  margin-bottom: 16px;
   font-size: 24px;
   line-height: 1.2;
 }
-.intro span:first-child { opacity: 0.55; }
+.intro span:first-child { color: color-mix(in srgb, var(--text) 55%, transparent); }
 .is-landing .work { grid-row: 3; }
 @media (max-width: 800px) {
   .is-landing .page { grid-template-rows: auto auto auto; }
@@ -558,3 +561,35 @@ html[data-theme="dark"] body { background-image: url("assets/grain-dark-theme.pn
 .cta { grid-column: 2; font-size: 24px; line-height: 1.3; max-width: 34ch; }
 .cta a { display: inline-block; margin-top: 8px; }
 @media (max-width: 800px) { .cta { font-size: 20px; } }
+
+/* Dark mode: light image plates become dark, so screenshots don't glow */
+html[data-theme="dark"] [style*="--tile-bg"] { --tile-bg: var(--plate) !important; }
+html[data-theme="dark"] .cs__hero[style*="background"] { background: var(--plate) !important; }
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] [style*="--tile-bg"] { --tile-bg: var(--plate) !important; }
+  html[data-theme="system"] .cs__hero[style*="background"] { background: var(--plate) !important; }
+}
+
+/* Page transition: the small label snapshot leaves quickly, so the title never looks stretched */
+::view-transition-old(.vt-title) { animation-duration: 150ms; }
+
+/* Statements and page headlines rise in line by line from a mask */
+.js .rise .line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.js .rise .line > span { display: inline-block; transform: translateY(105%); }
+.js .rise.is-in .line > span {
+  transform: none;
+  transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--l, 0) * 70ms);
+}
+@media (prefers-reduced-motion: reduce) { .js .rise .line > span { transform: none; } }
+
+/* Next project link at the end of case pages */
+.next {
+  display: block;
+  padding-top: 32px;
+  border-top: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+}
+.next .cs__label { display: block; margin-bottom: 16px; opacity: 0.6; }
+.next__title { font-size: 64px; font-weight: 400; line-height: 1.05; transition: color 250ms ease; }
+.next:hover .next__title { color: var(--accent); }
+@media (max-width: 800px) { .next__title { font-size: 40px; } }

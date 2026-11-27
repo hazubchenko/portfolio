@@ -145,7 +145,8 @@ if (rollEls.length && 'IntersectionObserver' in window && !reduceMotion) {
 // to the centre, the page eases it into place slowly (no fast browser snap).
 // Any wheel, touch, key or click during the glide hands control straight back.
 (() => {
-  if (!document.body.classList.contains('is-case') || reduceMotion) return;
+  const b = document.body.classList;
+  if (!b.contains('is-case') || b.contains('is-about') || b.contains('is-contact') || reduceMotion) return;
   const desktop = window.matchMedia('(min-width: 801px) and (min-height: 600px) and (hover: hover) and (pointer: fine)');
   const rect = (sel) => {
     const els = [...document.querySelectorAll(sel)];
@@ -160,7 +161,7 @@ if (rollEls.length && 'IntersectionObserver' in window && !reduceMotion) {
     centre((() => { const a = rect('.cs__facts'), b = rect('.cs__statement--hmw .cs__big'); return a && b && { top: a.top, bottom: b.bottom }; })()),
     centre(rect('.cs__duo .cs__frame')),
     centre(rect('.cs__trio .cs__frame')),
-    centre(rect('.cs__learnings')),
+    centre((() => { const r = rect('.cs__learnings'); return r && (r.bottom - r.top) < innerHeight * 0.8 ? r : null; })()),
     centre(rect('.cs__body > .cs__shot .cs__frame')),
   ].filter((y) => y !== null && y !== undefined);
 
@@ -238,3 +239,38 @@ if (contactForm) {
     hint.textContent = `If nothing opened, email me directly at ${to}.`;
   });
 }
+
+
+// Line-by-line rise for statements and page headlines.
+// Words are grouped into the lines the browser actually draws, then each line rises from a mask.
+(() => {
+  const els = document.querySelectorAll('.cs__big, .about__title, .contact__title, .next__title');
+  if (!els.length || reduceMotion || !('IntersectionObserver' in window)) return;
+  const build = (el) => {
+    const text = el.dataset.text || el.textContent.trim();
+    el.dataset.text = text;
+    el.setAttribute('aria-label', text);
+    el.innerHTML = text.split(/\s+/).map((w) => `<span class="w" aria-hidden="true">${w}</span>`).join(' ');
+    const lines = [];
+    let top = null;
+    el.querySelectorAll('.w').forEach((w) => {
+      const t = w.offsetTop;
+      if (top === null || Math.abs(t - top) > 4) { lines.push([]); top = t; }
+      lines[lines.length - 1].push(w.textContent);
+    });
+    el.innerHTML = lines.map((l, i) => `<span class="line" aria-hidden="true" style="--l:${i}"><span>${l.join(' ')}</span></span>`).join('');
+  };
+  els.forEach((el) => {
+    el.classList.add('rise');
+    build(el);
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { el.classList.add('is-in'); io.disconnect(); }
+    }), { rootMargin: el.classList.contains('next__title') ? '0px' : '0px 0px -10% 0px' });
+    io.observe(el);
+  });
+  let w = innerWidth;
+  addEventListener('resize', () => {
+    if (Math.abs(innerWidth - w) < 40) return; w = innerWidth;
+    els.forEach((el) => { const done = el.classList.contains('is-in'); build(el); if (done) el.classList.add('is-in'); });
+  });
+})();
