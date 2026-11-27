@@ -486,3 +486,75 @@ html[data-theme="dark"] body { background-image: url("assets/grain-dark-theme.pn
   .about__photos .about__photo:first-child { grid-column: 1 / -1; }
   .about__facts { grid-template-columns: 1fr; }
 }
+
+/* Contact page */
+.contact__title { max-width: 16ch; line-height: 1.05; }
+.contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 3fr);
+  gap: var(--gap);
+  align-items: start;
+}
+.contact__info { grid-column: 1 / span 2; display: flex; flex-direction: column; gap: 32px; }
+.contact__info .cs__label { margin-bottom: 12px; }
+.contact__value { font-size: 14px; }
+.contact__value a, .cs__body a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.contact__value a:hover, .cs__body a:hover { color: var(--accent); }
+.contact__form { grid-column: 3; display: flex; flex-direction: column; gap: 28px; max-width: 720px; }
+.field { display: flex; flex-direction: column; gap: 12px; }
+.field input, .field textarea {
+  width: 100%;
+  padding: 0 0 10px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--text) 25%, transparent);
+  border-radius: 0;
+  background: none;
+  color: var(--text);
+  font: 300 24px/1.3 var(--font);
+  resize: vertical;
+}
+.field input:focus, .field textarea:focus { outline: none; border-bottom-color: var(--text); }
+.field.is-invalid input, .field.is-invalid textarea { border-bottom-color: var(--accent); }
+.contact__actions { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.button {
+  padding: 14px 24px;
+  border: 1px solid var(--text);
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font: 400 14px/1 var(--font);
+  cursor: pointer;
+  transition: transform 700ms cubic-bezier(0.33, 1, 0.68, 1), opacity 200ms ease;
+}
+.button:hover { transform: translateY(-2px); }
+.contact__hint { font-size: 14px; opacity: 0.6; }
+@media (max-width: 800px) {
+  .contact { grid-template-columns: 1fr; gap: 56px; }
+  .contact__info, .contact__form { grid-column: 1; }
+  .field input, .field textarea { font-size: 20px; }
+}
+
+/* Landing intro: one positioning line in the band above the projects */
+.is-landing .page { grid-template-rows: auto minmax(0, 1fr) minmax(0, 4fr); }
+.is-landing .page > .nav { grid-row: 1; }
+.intro {
+  grid-row: 2;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 44ch;
+  font-size: 24px;
+  line-height: 1.2;
+}
+.intro span:first-child { opacity: 0.55; }
+.is-landing .work { grid-row: 3; }
+@media (max-width: 800px) {
+  .is-landing .page { grid-template-rows: auto auto auto; }
+  .intro { font-size: 20px; }
+}
+
+/* Closing invitation on case pages */
+.cta { grid-column: 2; font-size: 24px; line-height: 1.3; max-width: 34ch; }
+.cta a { display: inline-block; margin-top: 8px; }
+@media (max-width: 800px) { .cta { font-size: 20px; } }

@@ -215,3 +215,26 @@ window.addEventListener('pageshow', () => {
   document.body.classList.remove('is-leaving');
   document.querySelectorAll('.tile.is-chosen').forEach((t) => t.classList.remove('is-chosen'));
 });
+
+// Contact form: no server needed. Validates, then opens the visitor's email app
+// with the message pre-filled, addressed to the email shown on the page.
+const contactForm = document.querySelector('.contact__form');
+if (contactForm) {
+  const to = document.querySelector('[data-email]')?.textContent.trim();
+  const hint = contactForm.querySelector('.contact__hint');
+  contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let ok = true;
+    contactForm.querySelectorAll('input, textarea').forEach((f) => {
+      const bad = !f.checkValidity() || !f.value.trim();
+      f.closest('.field').classList.toggle('is-invalid', bad);
+      if (bad) ok = false;
+    });
+    if (!ok) { hint.textContent = 'Please fill in all three fields.'; return; }
+    const d = new FormData(contactForm);
+    const subject = `Portfolio: message from ${d.get('name')}`;
+    const body = `${d.get('message')}\n\n${d.get('name')}\n${d.get('email')}`;
+    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    hint.textContent = `If nothing opened, email me directly at ${to}.`;
+  });
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact · Hanna Zubchenko</title>
+  <meta name="description" content="Get in touch with Hanna Zubchenko, product designer in Oslo.">
+  <script>
+    // Apply saved theme before first paint (no flash). "system" follows the device.
+    (function () {
+      var t = 'system';
+      try { t = localStorage.getItem('theme') || 'system'; } catch (e) {}
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css?v=202611271659">
+</head>
+<body class="is-case is-contact">
+  <div class="cs">
+    <header class="nav">
+      <a href="./" class="nav__item">Hanna Zubchenko</a>
+      <a href="about.html" class="nav__item">About</a>
+      <a href="contact.html" class="nav__item">Contact</a>
+      <div class="theme" role="group" aria-label="Colour theme">
+        <button type="button" data-theme-set="light">Light</button>
+        <button type="button" data-theme-set="dark">Dark</button>
+        <button type="button" data-theme-set="system">System</button>
+      </div>
+    </header>
+
+    <main class="cs__body">
+      <section class="cs__intro">
+        <div class="cs__heading">
+          <h1 class="cs__title contact__title">Let's talk about spaces, systems and the people in them.</h1>
+        </div>
+      </section>
+
+      <section class="contact">
+        <div class="contact__info" data-roll>
+          <div>
+            <h2 class="cs__label">Email</h2>
+            <p class="contact__value"><a href="mailto:annazubka@gmail.com" data-email>annazubka@gmail.com</a></p>
+          </div>
+          <div>
+            <h2 class="cs__label">LinkedIn</h2>
+            <p class="contact__value"><a href="https://www.linkedin.com/in/hanna-zubchenko/" rel="noopener">linkedin.com/in/hanna-zubchenko</a></p>
+          </div>
+          <div>
+            <h2 class="cs__label">Based in</h2>
+            <p class="contact__value">Oslo, Norway</p>
+          </div>
+        </div>
+
+        <form class="contact__form" data-roll data-roll-delay="140" novalidate>
+          <label class="field">
+            <span class="cs__label">Name</span>
+            <input name="name" type="text" autocomplete="name" required>
+          </label>
+          <label class="field">
+            <span class="cs__label">Email</span>
+            <input name="email" type="email" autocomplete="email" required>
+          </label>
+          <label class="field">
+            <span class="cs__label">Message</span>
+            <textarea name="message" rows="5" required></textarea>
+          </label>
+          <div class="contact__actions">
+            <button type="submit" class="button">Send message</button>
+            <p class="contact__hint" aria-live="polite">Opens your email app with the message ready to send.</p>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="main.js?v=202611271659" defer></script>
+</body>
+</html>
