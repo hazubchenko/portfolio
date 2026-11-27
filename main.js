@@ -61,6 +61,16 @@ document.querySelectorAll('[data-youtube]').forEach((el) => {
 // Card -> case page: carry the video's playback position across, so the
 // morphing frame shows one continuous shot instead of restarting.
 const featureTile = document.querySelector('.tile--feature');
+// The Workspace Advisor card shows its still frame, and plays only while you hover it.
+if (featureTile && !reduceMotion) {
+  const v = featureTile.querySelector('video');
+  if (v) {
+    featureTile.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') v.play().catch(() => {}); });
+    featureTile.addEventListener('pointerleave', () => v.pause());
+    featureTile.addEventListener('focus', () => v.play().catch(() => {}));
+    featureTile.addEventListener('blur', () => v.pause());
+  }
+}
 if (featureTile) {
   featureTile.addEventListener('click', () => {
     const v = featureTile.querySelector('video');
@@ -306,20 +316,10 @@ if (contactForm) {
   const ink = hex(INK);
 
   // the cloud: one soft Gaussian blob of points around the centre
-  const N = small ? 4600 : 9500, cx = W / 2, cy = H / 2, sig = Math.min(W, H) * 0.17;
-  // soft Gaussian splat sprites, one per colour step (6 levels per channel)
-  const LV = 6, step = 255 / (LV - 1), SP = 40, sprites = [];
-  for (let r = 0; r < LV; r++) for (let g = 0; g < LV; g++) for (let b = 0; b < LV; b++) {
-    const c = document.createElement('canvas'); c.width = c.height = SP;
-    const x = c.getContext('2d'), col = `${Math.round(r * step)},${Math.round(g * step)},${Math.round(b * step)}`;
-    const gr = x.createRadialGradient(SP / 2, SP / 2, 0, SP / 2, SP / 2, SP / 2);
-    gr.addColorStop(0, `rgba(${col},0.95)`); gr.addColorStop(0.4, `rgba(${col},0.6)`); gr.addColorStop(1, `rgba(${col},0)`);
-    x.fillStyle = gr; x.fillRect(0, 0, SP, SP); sprites.push(c);
-  }
-  const spriteOf = (c) => sprites[Math.round(c[0] / step) * LV * LV + Math.round(c[1] / step) * LV + Math.round(c[2] / step)];
+  const N = small ? 6000 : 14000, cx = W / 2, cy = H / 2, sig = Math.min(W, H) * 0.17;
   const pts = Array.from({ length: N }, () => {
     const gx = gauss() * sig, gy = gauss() * sig * 0.8;
-    return { gx, gy, sp: 0.4 + Math.random() * 0.6, s: 0.8 + Math.random() * 1.1, tx: null, ty: null, c: ink, d: 0, bend: (Math.random() - 0.5) * 60 };
+    return { gx, gy, sp: 0.4 + Math.random() * 0.6, s: 0.6 + Math.random() * 0.7, tx: null, ty: null, c: ink, d: 0, bend: (Math.random() - 0.5) * 60 };
   });
 
   // a snapshot of the page as it will look, drawn into an offscreen canvas
@@ -382,12 +382,12 @@ if (contactForm) {
       }
       return out;
     };
-    const tText = take(text, Math.round(N * 0.22), N * 140).map((t) => t.concat(1.3));
+    const tText = take(text, Math.round(N * 0.26), N * 140).map((t) => t.concat(1));
     const tMedia = take(media, N - tText.length, N * 30);
     // splat size: big enough that the splats cover the pictures, like Gaussian splats
     const area = tried ? (tMedia.length / tried) * W * H : 0;
-    const base = tMedia.length ? Math.max(4, Math.min(22, Math.sqrt(area / tMedia.length) * 1.9)) : 4;
-    const targets = tMedia.map((t) => t.concat(base * (0.55 + Math.random() * 0.9))).concat(tText);
+    const base = 1.5;
+    const targets = tMedia.map((t) => t.concat(base * (0.7 + Math.random() * 0.6))).concat(tText);
     pts.forEach((p, i) => {
       const t = targets[i];
       if (!t) { p.tx = null; return; }
@@ -433,15 +433,15 @@ if (contactForm) {
         x = ax + (p.tx - ax) * q + bend; y = ay + (p.ty - ay) * q;
         c = [0, 1, 2].map((k) => Math.round(ink[k] + (p.c[k] - ink[k]) * q));
         size = p.s + (p.ts - p.s) * q;
-        a = p.ts > 2 ? 0.55 + 0.35 * q : 0.55 + 0.4 * q;
+        a = 0.5 + 0.45 * q;
       } else if (tf > 0) {
         a *= 1 - clamp(tf / 400);
       }
       a *= 1 - easeIO(fade);
       if (a < 0.02) continue;
       ctx.globalAlpha = a;
-      if (size > 2.6) ctx.drawImage(spriteOf(c), x - size / 2, y - size / 2, size, size);
-      else { ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x - size / 2, y - size / 2, size, size); }
+      ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+      ctx.fillRect(x - size / 2, y - size / 2, size, size);
     }
     ctx.globalAlpha = 1;
     if (first) { first = false; root.classList.remove('boot'); }

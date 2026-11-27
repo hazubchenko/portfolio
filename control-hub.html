@@ -17,13 +17,16 @@
     (function () {
       try {
         var nav = performance.getEntriesByType('navigation')[0], type = nav ? nav.type : 'navigate';
-        var fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin;
+        var seen = false;
+        try { seen = sessionStorage.getItem('hzSeen') === '1'; sessionStorage.setItem('hzSeen', '1'); } catch (e) {}
+        var fromSite = false;
+        try { fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
         var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (!calm && (type === 'reload' || (type === 'navigate' && !fromSite))) document.documentElement.classList.add('boot');
+        if (!calm && (type === 'reload' || (type === 'navigate' && !seen && !fromSite))) document.documentElement.classList.add('boot');
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611271900">
+  <link rel="stylesheet" href="styles.css?v=202611271915">
 </head>
 <body class="is-case">
   <div class="cs">
@@ -103,6 +106,6 @@
       </a>
     </main>
   </div>
-  <script src="main.js?v=202611271900" defer></script>
+  <script src="main.js?v=202611271915" defer></script>
 </body>
 </html>

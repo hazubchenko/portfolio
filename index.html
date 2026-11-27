@@ -17,13 +17,16 @@
     (function () {
       try {
         var nav = performance.getEntriesByType('navigation')[0], type = nav ? nav.type : 'navigate';
-        var fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin;
+        var seen = false;
+        try { seen = sessionStorage.getItem('hzSeen') === '1'; sessionStorage.setItem('hzSeen', '1'); } catch (e) {}
+        var fromSite = false;
+        try { fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
         var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (!calm && (type === 'reload' || (type === 'navigate' && !fromSite))) document.documentElement.classList.add('boot');
+        if (!calm && (type === 'reload' || (type === 'navigate' && !seen && !fromSite))) document.documentElement.classList.add('boot');
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611271900">
+  <link rel="stylesheet" href="styles.css?v=202611271915">
 </head>
 <body class="is-landing">
   <div class="page">
@@ -47,7 +50,7 @@
       <a href="workspace-advisor.html" class="tile tile--feature">
         <span class="tile__label" style="view-transition-name:workspace-advisor-title;view-transition-class:vt-title">Cisco Workspace Advisor</span>
         <span class="tile__media" style="--tile-bg:#d9d9d9;view-transition-name:workspace-advisor-media;view-transition-class:vt-media">
-          <video class="cover" autoplay muted loop playsinline preload="auto"
+          <video class="cover" muted loop playsinline preload="auto"
                  poster="assets/workspace-advisor-poster.jpg"
                  aria-label="A Cisco device scans a meeting room and rebuilds it in 3D in Control Hub">
             <source src="assets/workspace-advisor-loop.mp4" type="video/mp4">
@@ -80,6 +83,6 @@
       </div>
     </main>
   </div>
-  <script src="main.js?v=202611271900" defer></script>
+  <script src="main.js?v=202611271915" defer></script>
 </body>
 </html>
