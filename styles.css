@@ -601,24 +601,13 @@ html.boot body::after { content: ""; position: fixed; inset: 0; z-index: 1000; b
 @keyframes boot-fallback { to { visibility: hidden; } }
 .boot-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1001; }
 
-/* ---------- Cursor HUD ---------- */
-.hud { position: fixed; inset: 0; z-index: 900; pointer-events: none; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
-.hud > * { opacity: 0; transition: opacity 200ms ease; }
-.hud.is-on > * { opacity: 1; }
-.hud__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.hud__svg path, .hud__svg line { fill: none; stroke: var(--text); stroke-width: 0.75; }
-.hud__svg rect { fill: var(--bg); stroke: var(--text); stroke-width: 0.75; }
-.hud__br { position: absolute; left: 0; top: 0; }
-.hud__br i { position: absolute; width: 9px; height: 9px; border: 1.25px solid var(--text); }
-.hud__br i:nth-child(1) { left: 0; top: 0; border-right: 0; border-bottom: 0; }
-.hud__br i:nth-child(2) { right: 0; top: 0; border-left: 0; border-bottom: 0; }
-.hud__br i:nth-child(3) { left: 0; bottom: 0; border-right: 0; border-top: 0; }
-.hud__br i:nth-child(4) { right: 0; bottom: 0; border-left: 0; border-top: 0; }
-.hud__chip { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font: 400 10px/1.7 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
-.hud__chip b { display: inline-flex; align-items: center; gap: 7px; background: var(--text); color: var(--bg); font-weight: 500; padding: 1px 8px 1px 6px; }
-.hud__chip em { width: 7px; height: 7px; border: 1px solid var(--bg); }
-.hud__chip em.is-act { background: var(--accent); border-color: var(--accent); }
-.hud__xy, .hud__act { background: color-mix(in srgb, var(--bg) 88%, transparent); padding: 0 6px; }
-.hud__xy { color: color-mix(in srgb, var(--text) 55%, transparent); }
-.hud__act { color: var(--accent); }
-.hud__act:empty { display: none; }
+/* ---------- Cards with depth (landing) ---------- */
+.is-landing .tile { transform-style: preserve-3d; }
+.is-landing .tile.is-tilting { transition: transform 260ms ease-out, opacity 320ms ease; }
+.is-landing .tile.is-tilting .tile__label { translate: 0 0 28px; }
+.is-landing .tile__label { transition: translate 700ms cubic-bezier(0.33, 1, 0.68, 1); }
+.is-landing .tile__media img, .is-landing .tile__media video { transition: transform 700ms cubic-bezier(0.33, 1, 0.68, 1); }
+.is-landing .tile.is-tilting .tile__media img, .is-landing .tile.is-tilting .tile__media video { transition: transform 260ms ease-out; }
+.tile__shine { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 400ms ease;
+  background: radial-gradient(circle at var(--sx, 50%) var(--sy, 50%), rgba(255, 255, 255, 0.18), transparent 55%); }
+.tile.is-tilting .tile__shine { opacity: 1; }

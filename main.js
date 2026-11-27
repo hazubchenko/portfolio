@@ -276,188 +276,210 @@ if (contactForm) {
 })();
 
 // ---------------------------------------------------------------------------
-// Loader: on first visit or refresh, a fine splatter streams into one dot,
-// which opens like an aperture and reveals the page. Skipped when arriving
-// from another page on the site, going back, or with "reduce motion".
+// Loader: the page is rebuilt from a point cloud. A soft Gaussian cloud of
+// points gathers, then each point flies to a pixel of the real page (images,
+// text, panels), takes its colour, and the cloud dissolves into the page.
+// First visit or refresh only; skipped between pages, on back, and with
+// "reduce motion".
 // ---------------------------------------------------------------------------
-(function bootLoader() {
+(function splatLoader() {
   const root = document.documentElement;
   if (!root.classList.contains('boot')) return;
+  root.classList.add('booting');
   const css = getComputedStyle(root);
   const BG = css.getPropertyValue('--bg').trim() || '#f7f8fa';
   const INK = css.getPropertyValue('--text').trim() || '#0b1220';
-
+  const W = innerWidth, H = innerHeight, small = W < 700;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
   const cv = document.createElement('canvas');
   cv.className = 'boot-canvas';
   cv.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(cv);
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  let W = innerWidth, H = innerHeight;
   cv.width = W * dpr; cv.height = H * dpr;
+  document.body.appendChild(cv);
   const ctx = cv.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const clamp = (v) => Math.max(0, Math.min(1, v));
   const easeIO = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-  const easeIO4 = (t) => (t < 0.5 ? 8 * t ** 4 : 1 - Math.pow(-2 * t + 2, 4) / 2);
-  const cx = W / 2, cy = H / 2, M = Math.min(W, H);
-  const N = W < 700 ? 420 : 900;
-  const parts = Array.from({ length: N }, () => ({
-    r0: M * (0.28 + Math.random() * 0.55),
-    a0: Math.random() * Math.PI * 2,
-    d: Math.random() * 360,
-    dur: 820 + Math.random() * 380,
-  }));
-  const at = (p, q) => {
-    const r = p.r0 * Math.pow(1 - q, 1.25), a = p.a0 + q * 1.7;
-    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
-  };
-  const DOT = 6.5, T_DOT = 720, T_OPEN = 1260, T_END = 1960;
-  const diag = Math.hypot(W, H) / 2 + 24;
-  let first = true;
-  const t0 = performance.now();
+  const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
+  const hex = (c) => { const m = c.replace('#', ''); const n = parseInt(m.length === 3 ? m.replace(/./g, '$&$&') : m, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+  const ink = hex(INK);
 
+  // the cloud: one soft Gaussian blob of points around the centre
+  const N = small ? 4600 : 9500, cx = W / 2, cy = H / 2, sig = Math.min(W, H) * 0.17;
+  // soft Gaussian splat sprites, one per colour step (6 levels per channel)
+  const LV = 6, step = 255 / (LV - 1), SP = 40, sprites = [];
+  for (let r = 0; r < LV; r++) for (let g = 0; g < LV; g++) for (let b = 0; b < LV; b++) {
+    const c = document.createElement('canvas'); c.width = c.height = SP;
+    const x = c.getContext('2d'), col = `${Math.round(r * step)},${Math.round(g * step)},${Math.round(b * step)}`;
+    const gr = x.createRadialGradient(SP / 2, SP / 2, 0, SP / 2, SP / 2, SP / 2);
+    gr.addColorStop(0, `rgba(${col},0.95)`); gr.addColorStop(0.4, `rgba(${col},0.6)`); gr.addColorStop(1, `rgba(${col},0)`);
+    x.fillStyle = gr; x.fillRect(0, 0, SP, SP); sprites.push(c);
+  }
+  const spriteOf = (c) => sprites[Math.round(c[0] / step) * LV * LV + Math.round(c[1] / step) * LV + Math.round(c[2] / step)];
+  const pts = Array.from({ length: N }, () => {
+    const gx = gauss() * sig, gy = gauss() * sig * 0.8;
+    return { gx, gy, sp: 0.4 + Math.random() * 0.6, s: 0.8 + Math.random() * 1.1, tx: null, ty: null, c: ink, d: 0, bend: (Math.random() - 0.5) * 60 };
+  });
+
+  // a snapshot of the page as it will look, drawn into an offscreen canvas
+  function snapshot() {
+    const sc = document.createElement('canvas'); sc.width = W; sc.height = H;
+    const sx = sc.getContext('2d', { willReadFrequently: true });
+    const tc = document.createElement('canvas'); tc.width = W; tc.height = H;
+    const tx = tc.getContext('2d', { willReadFrequently: true });
+    const inView = (r) => r.width > 2 && r.height > 2 && r.bottom > 0 && r.top < H && r.right > 0 && r.left < W;
+    // panels and media
+    document.querySelectorAll('.tile__media, .cs__hero, .cs__frame').forEach((box) => {
+      const r = box.getBoundingClientRect(); if (!inView(r)) return;
+      const bg = getComputedStyle(box).backgroundColor;
+      if (bg && bg !== 'rgba(0, 0, 0, 0)') { sx.fillStyle = bg; sx.fillRect(r.left, r.top, r.width, r.height); }
+    });
+    document.querySelectorAll('img, video').forEach((m) => {
+      const r = m.getBoundingClientRect(); if (!inView(r)) return;
+      let src = m;
+      if (m.tagName === 'VIDEO') { if (m.readyState < 2) { src = m._poster; if (!src) return; } }
+      else if (!m.complete || !m.naturalWidth) return;
+      const iw = src.videoWidth || src.naturalWidth, ih = src.videoHeight || src.naturalHeight; if (!iw) return;
+      const st = getComputedStyle(m), fit = st.objectFit;
+      const k = fit === 'contain' ? Math.min(r.width / iw, r.height / ih) : Math.max(r.width / iw, r.height / ih);
+      const dw = iw * k, dh = ih * k;
+      const [px, py] = (st.objectPosition || '50% 50%').split(' ').map((v) => (v.endsWith('%') ? parseFloat(v) / 100 : v === 'right' || v === 'bottom' ? 1 : v === 'left' || v === 'top' ? 0 : 0.5));
+      const clip = m.closest('.tile__media, .cs__hero, .cs__frame')?.getBoundingClientRect() || r;
+      sx.save(); sx.beginPath(); sx.rect(clip.left, clip.top, clip.width, clip.height); sx.clip();
+      try { sx.drawImage(src, r.left + (r.width - dw) * px, r.top + (r.height - dh) * (py ?? 0.5), dw, dh); } catch (e) {}
+      sx.restore();
+    });
+    // text, word by word, in its real font and colour
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.nodeValue.trim() && !n.parentElement.closest('script, style, .boot-canvas') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+    const range = document.createRange();
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const el = n.parentElement, st = getComputedStyle(el);
+      if (st.visibility === 'hidden' || st.display === 'none') continue;
+      tx.font = `${st.fontStyle} ${st.fontWeight} ${st.fontSize} ${st.fontFamily}`;
+      tx.fillStyle = st.color.replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, 'rgb($1,$2,$3)');
+      tx.textBaseline = 'middle';
+      const re = /\S+/g; let m;
+      while ((m = re.exec(n.nodeValue))) {
+        range.setStart(n, m.index); range.setEnd(n, m.index + m[0].length);
+        const b = range.getBoundingClientRect(); if (!inView(b)) continue;
+        tx.fillText(m[0], b.left, b.top + b.height / 2);
+      }
+    }
+    return [sx.getImageData(0, 0, W, H).data, tx.getImageData(0, 0, W, H).data];
+  }
+
+  function assign() {
+    let media, text;
+    try { [media, text] = snapshot(); } catch (e) { media = text = null; }
+    let tried = 0;
+    const take = (data, want, tries) => {
+      const out = []; tried = 0;
+      if (!data) return out;
+      for (let i = 0; i < tries && out.length < want; i++, tried++) {
+        const x = (Math.random() * W) | 0, y = (Math.random() * H) | 0, o = (y * W + x) * 4;
+        if (data[o + 3] > 90) out.push([x + Math.random(), y + Math.random(), [data[o], data[o + 1], data[o + 2]]]);
+      }
+      return out;
+    };
+    const tText = take(text, Math.round(N * 0.22), N * 140).map((t) => t.concat(1.3));
+    const tMedia = take(media, N - tText.length, N * 30);
+    // splat size: big enough that the splats cover the pictures, like Gaussian splats
+    const area = tried ? (tMedia.length / tried) * W * H : 0;
+    const base = tMedia.length ? Math.max(4, Math.min(22, Math.sqrt(area / tMedia.length) * 1.9)) : 4;
+    const targets = tMedia.map((t) => t.concat(base * (0.55 + Math.random() * 0.9))).concat(tText);
+    pts.forEach((p, i) => {
+      const t = targets[i];
+      if (!t) { p.tx = null; return; }
+      [p.tx, p.ty, p.c, p.ts] = t;
+      p.d = (p.ty / H) * 360 + Math.random() * 140;   // the page builds from top to bottom, like a scan
+    });
+  }
+
+  // keep looping videos still while the page is rebuilt, so the points match what's underneath
+  const held = [...document.querySelectorAll('video[autoplay]')];
+  held.forEach((v) => { v.pause(); v.addEventListener('play', v._hold = () => v.pause()); });
+  // posters for videos that are not ready yet, and wait (briefly) for images
+  const waits = [];
+  document.querySelectorAll('video[poster]').forEach((v) => { const im = new Image(); im.src = v.poster; v._poster = im; waits.push(im.decode().catch(() => {})); });
+  document.querySelectorAll('img').forEach((im) => { if (!im.complete) waits.push(im.decode().catch(() => {})); });
+  let ready = false, tReady = 0;
+  const go = () => { if (ready) return; assign(); ready = true; tReady = performance.now(); };
+  Promise.all(waits).then(go);
+  setTimeout(go, 900);
+
+  const FLY = 680, HOLD = 140, FADE = 480, MIN_CLOUD = 480;
+  const t0 = performance.now();
+  let first = true;
   function frame(now) {
     const t = now - t0;
-    ctx.globalCompositeOperation = 'source-over';
+    const tf = ready ? now - Math.max(tReady, t0 + MIN_CLOUD) : -1;
+    const done = 360 + 140 + FLY + HOLD;
+    const fade = tf > done ? clamp((tf - done) / FADE) : 0;
     ctx.globalAlpha = 1;
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = BG;
-    ctx.fillRect(0, 0, W, H);
-
-    // streams: each particle is a short streak along an inward spiral
-    ctx.strokeStyle = INK;
-    ctx.lineWidth = 0.6;
-    ctx.lineCap = 'round';
-    for (let b = 0; b < 4; b++) {
-      ctx.globalAlpha = 0.12 + b * 0.12;
-      ctx.beginPath();
-      for (const p of parts) {
-        const q = easeIO(clamp((t - p.d) / p.dur));
-        if (q <= 0 || q >= 0.97) continue;
-        const bucket = Math.min(3, Math.floor(Math.sin(Math.PI * q) * 4));
-        if (bucket !== b) continue;
-        const [x1, y1] = at(p, Math.max(0, q - 0.05));
-        const [x2, y2] = at(p, q);
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
+    ctx.globalAlpha = 1 - easeIO(fade);
+    ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    const rot = t * 0.00035, cr = Math.cos(rot), sr = Math.sin(rot);
+    const appear = clamp(t / 300);
+    for (const p of pts) {
+      // where the point sits in the cloud (slowly turning)
+      const ax = cx + (p.gx * cr - p.gy * sr) * (0.92 + 0.08 * Math.sin(t * 0.002 * p.sp));
+      const ay = cy + (p.gx * sr + p.gy * cr);
+      let x = ax, y = ay, c = ink, a = 0.55 * appear, size = p.s;
+      if (tf > 0 && p.tx !== null) {
+        const q = easeIO(clamp((tf - p.d) / FLY));
+        const bend = Math.sin(Math.PI * q) * p.bend;
+        x = ax + (p.tx - ax) * q + bend; y = ay + (p.ty - ay) * q;
+        c = [0, 1, 2].map((k) => Math.round(ink[k] + (p.c[k] - ink[k]) * q));
+        size = p.s + (p.ts - p.s) * q;
+        a = p.ts > 2 ? 0.55 + 0.35 * q : 0.55 + 0.4 * q;
+      } else if (tf > 0) {
+        a *= 1 - clamp(tf / 400);
       }
-      ctx.stroke();
+      a *= 1 - easeIO(fade);
+      if (a < 0.02) continue;
+      ctx.globalAlpha = a;
+      if (size > 2.6) ctx.drawImage(spriteOf(c), x - size / 2, y - size / 2, size, size);
+      else { ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x - size / 2, y - size / 2, size, size); }
     }
     ctx.globalAlpha = 1;
-
-    // the dot: settles with a soft spring, like a drop finding its shape
-    const tau = t - T_DOT;
-    let r = tau > 0 ? DOT * (1 - Math.exp(-tau / 110) * Math.cos(tau / 75)) : 0;
-    const open = easeIO4(clamp((t - T_OPEN) / (T_END - T_OPEN - 60)));
-    if (open > 0) {
-      const R = r + open * diag;
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.globalAlpha = 0.5 * (1 - open);
-      ctx.strokeStyle = INK; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = 1 - clamp((t - T_OPEN) / 90);
-      r = Math.max(0, r * (1 - open * 4));
-    }
-    if (r > 0.2) { ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); }
-    ctx.globalAlpha = 1;
-
     if (first) { first = false; root.classList.remove('boot'); }
-    if (t < T_END) requestAnimationFrame(frame);
-    else { cv.remove(); root.classList.remove('booting'); }
+    if (fade < 1) requestAnimationFrame(frame);
+    else {
+      cv.remove(); root.classList.remove('booting');
+      held.forEach((v) => { v.removeEventListener('play', v._hold); v.play().catch(() => {}); });
+    }
   }
-  root.classList.add('booting');
   requestAnimationFrame(frame);
 })();
 
 // ---------------------------------------------------------------------------
-// Cursor HUD: brackets snap to whatever you point at, with a small live label.
-// Desktop with a mouse only; off with "reduce motion". The real cursor stays.
+// Cards with depth (landing): a card tilts gently toward the cursor, its label
+// floats a little above it, and the picture shifts inside the frame.
+// Desktop with a mouse only; off with "reduce motion".
 // ---------------------------------------------------------------------------
-(function cursorHud() {
+(function depthCards() {
   if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-  const hud = document.createElement('div');
-  hud.className = 'hud';
-  hud.setAttribute('aria-hidden', 'true');
-  hud.innerHTML = '<svg class="hud__svg"><path class="hud__lead"/><g class="hud__trail"/></svg>' +
-    '<div class="hud__br"><i></i><i></i><i></i><i></i></div>' +
-    '<div class="hud__chip"><b><em></em><span class="hud__lab"></span></b><span class="hud__xy"></span><span class="hud__act"></span></div>';
-  document.body.appendChild(hud);
-  const br = hud.querySelector('.hud__br'), chip = hud.querySelector('.hud__chip');
-  const lab = hud.querySelector('.hud__lab'), xy = hud.querySelector('.hud__xy'), act = hud.querySelector('.hud__act');
-  const em = hud.querySelector('em'), lead = hud.querySelector('.hud__lead'), trailG = hud.querySelector('.hud__trail');
-
-  const TARGETS = 'a, button, input, textarea, [data-youtube], [data-hud]';
-  const text = (el) => (el.textContent || '').replace(/\s+/g, ' ').trim();
-  const short = (s, n = 30) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
-  function describe(el) {
-    if (el.dataset.hud) return [el.dataset.hud, el.dataset.hudAct || ''];
-    if (el.classList.contains('tile')) return ['Project · ' + text(el.querySelector('.tile__label') || el), 'Open case study'];
-    if (el.classList.contains('next')) return ['Next · ' + text(el.querySelector('.next__title') || el), 'Open project'];
-    if (el.dataset.youtube !== undefined) return ['Video · Demo', 'Play'];
-    if (el.dataset.themeSet) return ['Theme · ' + text(el), 'Switch'];
-    if (el.matches('input, textarea')) return ['Field · ' + (el.name || el.id || 'text'), 'Type'];
-    if (el.tagName === 'BUTTON') return ['Button · ' + short(text(el), 22), el.type === 'submit' ? 'Send' : ''];
-    const href = el.getAttribute('href') || '';
-    if (href === './' || href === 'index.html') return ['Home', 'Open'];
-    if (href.startsWith('mailto:')) return ['Email · ' + href.slice(7), 'Write email'];
-    if (/^https?:/.test(href)) { let host = href; try { host = new URL(href).hostname.replace(/^www\./, ''); } catch (e) {} return ['Link · ' + host, 'Open in new tab']; }
-    if (el.classList.contains('nav__item')) return ['Page · ' + text(el), 'Open'];
-    return ['Link · ' + short(text(el), 22), 'Open'];
-  }
-
-  // Text-only links can sit in wide grid cells: bracket the words, not the whole cell.
-  function rectOf(el) {
-    if (!el.querySelector('img, video, svg, iframe, canvas') && !el.matches('input, textarea') && text(el)) {
-      const r = document.createRange(); r.selectNodeContents(el);
-      const b = r.getBoundingClientRect(); if (b.width) return b;
-    }
-    return el.getBoundingClientRect();
-  }
-
-  let mx = -100, my = -100, tgt = null, since = 0, typed = '', lastPush = 0, shown = false;
-  const B = { x: 0, y: 0, w: 0, h: 0 }, C = { x: 0, y: 0 }, trail = [];
-  let info = ['', ''];
-  addEventListener('pointermove', (e) => {
-    mx = e.clientX; my = e.clientY;
-    const el = e.target.closest && e.target.closest(TARGETS);
-    if (el !== tgt) {
-      if (el && !tgt) { Object.assign(B, { x: mx - 10, y: my - 10, w: 20, h: 20 }); Object.assign(C, { x: mx + 24, y: my + 22 }); trail.length = 0; }
-      tgt = el; since = performance.now(); typed = ''; info = el ? describe(el) : info;
-    }
-  }, { passive: true });
-  document.addEventListener('pointerleave', () => { tgt = null; });
-  addEventListener('pagehide', () => { tgt = null; hud.classList.remove('is-on'); });
-
-  function loop(now) {
-    const busy = document.documentElement.classList.contains('booting') || document.body.classList.contains('is-leaving');
-    const on = !!tgt && !busy && tgt.isConnected;
-    if (on !== shown) { shown = on; hud.classList.toggle('is-on', on); }
-    if (on) {
-      const e = rectOf(tgt);
-      const T = { x: e.left - 6, y: e.top - 6, w: e.width + 12, h: e.height + 12 };
-      for (const k of ['x', 'y', 'w', 'h']) B[k] += (T[k] - B[k]) * 0.22;
-      br.style.transform = `translate(${B.x}px, ${B.y}px)`;
-      br.style.width = B.w + 'px'; br.style.height = B.h + 'px';
-      const tx = Math.min(mx + 24, innerWidth - 240), ty = Math.min(my + 22, innerHeight - 64);
-      C.x += (tx - C.x) * 0.25; C.y += (ty - C.y) * 0.25;
-      chip.style.transform = `translate(${C.x}px, ${C.y}px)`;
-      lead.setAttribute('d', `M${mx} ${my} L${mx + 8} ${my + 10} L${C.x} ${C.y + 9}`);
-      lab.textContent = short(info[0], 34);
-      xy.textContent = `X.${String(Math.round(Math.max(0, Math.min(1, mx / innerWidth)) * 999)).padStart(3, '0')} Y.${String(Math.round(Math.max(0, Math.min(1, my / innerHeight)) * 999)).padStart(3, '0')}`;
-      const a = info[1];
-      em.classList.toggle('is-act', !!a);
-      if (a && now - since > 420 && typed.length < a.length + 2) typed = ('▸ ' + a).slice(0, typed.length + 1);
-      act.textContent = a ? typed : '';
-      if (now - lastPush > 130) { trail.push([mx, my]); if (trail.length > 4) trail.shift(); lastPush = now; }
-      trailG.innerHTML = trail.map(([x, y], i) => {
-        const o = ((i + 1) / trail.length) * 0.5;
-        return `<line x1="${x}" y1="${y}" x2="${mx}" y2="${my}" style="opacity:${o * 0.6}"/><rect x="${x - 2.5}" y="${y - 2.5}" width="5" height="5" style="opacity:${o}"/>`;
-      }).join('');
-    }
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
+  document.querySelectorAll('.is-landing .tile').forEach((tile) => {
+    const media = tile.querySelector('.tile__media');
+    const pic = media && media.querySelector('img, video');
+    if (!media) return;
+    const shine = document.createElement('span');
+    shine.className = 'tile__shine';
+    media.appendChild(shine);
+    tile.addEventListener('pointermove', (e) => {
+      if (document.body.classList.contains('is-leaving')) return;
+      const r = tile.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      tile.classList.add('is-tilting');
+      tile.style.transform = `perspective(1100px) translateY(-8px) rotateX(${(-y * 4).toFixed(2)}deg) rotateY(${(x * 5).toFixed(2)}deg)`;
+      if (pic) pic.style.transform = `scale(1.06) translate(${(-x * 12).toFixed(1)}px, ${(-y * 8).toFixed(1)}px)`;
+      media.style.setProperty('--sx', `${((x + 0.5) * 100).toFixed(1)}%`);
+      media.style.setProperty('--sy', `${((y + 0.5) * 100).toFixed(1)}%`);
+    });
+    const reset = () => { tile.classList.remove('is-tilting'); tile.style.transform = ''; if (pic) pic.style.transform = ''; };
+    tile.addEventListener('pointerleave', reset);
+    tile.addEventListener('click', reset);
+  });
 })();
