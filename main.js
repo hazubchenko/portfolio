@@ -309,7 +309,6 @@ document.addEventListener('click', (e) => {
   root.classList.add('booting');
   const css = getComputedStyle(root);
   const BG = css.getPropertyValue('--bg').trim() || '#f7f8fa';
-  const INK = css.getPropertyValue('--text').trim() || '#0b1220';
   const W = innerWidth, H = innerHeight, small = W < 700;
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const cv = document.createElement('canvas');
@@ -319,19 +318,12 @@ document.addEventListener('click', (e) => {
   document.body.appendChild(cv);
   const ctx = cv.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
 
   const clamp = (v) => Math.max(0, Math.min(1, v));
-  const easeIO = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+  const easeIO = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
   const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
-  const hex = (c) => { const m = c.replace('#', ''); const n = parseInt(m.length === 3 ? m.replace(/./g, '$&$&') : m, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
-  const ink = hex(INK);
-
-  // the cloud: one soft Gaussian blob of points around the centre
-  const N = small ? 6000 : 14000, cx = W / 2, cy = H / 2, sig = Math.min(W, H) * 0.17;
-  const pts = Array.from({ length: N }, () => {
-    const gx = gauss() * sig, gy = gauss() * sig * 0.8;
-    return { gx, gy, sp: 0.4 + Math.random() * 0.6, s: 0.6 + Math.random() * 0.7, tx: null, ty: null, c: ink, d: 0, bend: (Math.random() - 0.5) * 60 };
-  });
 
   // a snapshot of the page as it will look, drawn into an offscreen canvas
   function snapshot() {
@@ -380,79 +372,71 @@ document.addEventListener('click', (e) => {
     return [sx.getImageData(0, 0, W, H).data, tx.getImageData(0, 0, W, H).data];
   }
 
-  function assign() {
-    let media, text;
-    try { [media, text] = snapshot(); } catch (e) { media = text = null; }
-    let tried = 0;
-    const take = (data, want, tries) => {
-      const out = []; tried = 0;
-      if (!data) return out;
-      for (let i = 0; i < tries && out.length < want; i++, tried++) {
-        const x = (Math.random() * W) | 0, y = (Math.random() * H) | 0, o = (y * W + x) * 4;
-        if (data[o + 3] > 90) out.push([x + Math.random(), y + Math.random(), [data[o], data[o + 1], data[o + 2]]]);
-      }
-      return out;
-    };
-    const tText = take(text, Math.round(N * 0.26), N * 140).map((t) => t.concat(1));
-    const tMedia = take(media, N - tText.length, N * 30);
-    // splat size: big enough that the splats cover the pictures, like Gaussian splats
-    const area = tried ? (tMedia.length / tried) * W * H : 0;
-    const base = 1.5;
-    const targets = tMedia.map((t) => t.concat(base * (0.7 + Math.random() * 0.6))).concat(tText);
-    pts.forEach((p, i) => {
-      const t = targets[i];
-      if (!t) { p.tx = null; return; }
-      [p.tx, p.ty, p.c, p.ts] = t;
-      p.d = (p.ty / H) * 360 + Math.random() * 140;   // the page builds from top to bottom, like a scan
-    });
+  // pick points on what's actually drawn: scan every 2nd pixel once, then sample
+  function sample(data, want) {
+    if (!data || want <= 0) return [];
+    const hits = [];
+    for (let y = 0; y < H; y += 2) for (let x = (y >> 1) & 1; x < W; x += 2) { const o = (y * W + x) * 4; if (data[o + 3] > 90) hits.push(o >> 2); }
+    const out = [];
+    for (let i = 0; i < want && hits.length; i++) {
+      const k = hits[(Math.random() * hits.length) | 0], o = k * 4;
+      // quantise the colour a little, so neighbouring points share one fill style
+      const q = (v) => (v >> 3) << 3;
+      out.push([(k % W) + Math.random(), ((k / W) | 0) + Math.random(), `rgb(${q(data[o])},${q(data[o + 1])},${q(data[o + 2])})`]);
+    }
+    return out;
   }
 
-  // keep looping videos still while the page is rebuilt, so the points match what's underneath
+  // keep looping videos still while the page forms, so the points match what's underneath
   const held = [...document.querySelectorAll('video[autoplay]')];
   held.forEach((v) => { v.pause(); v.addEventListener('play', v._hold = () => v.pause()); });
-  // posters for videos that are not ready yet, and wait (briefly) for images
   const waits = [];
   document.querySelectorAll('video[poster]').forEach((v) => { const im = new Image(); im.src = v.poster; v._poster = im; waits.push(im.decode().catch(() => {})); });
   document.querySelectorAll('img').forEach((im) => { if (!im.complete) waits.push(im.decode().catch(() => {})); });
-  let ready = false, tReady = 0;
-  const go = () => { if (ready) return; assign(); ready = true; tReady = performance.now(); };
-  Promise.all(waits).then(go);
-  setTimeout(go, 900);
 
-  const FLY = 680, HOLD = 140, FADE = 480, MIN_CLOUD = 480;
-  const t0 = performance.now();
+  const N = small ? 5000 : 10000;
+  const spread = Math.min(W, H) * 0.06;
+  let pts = null, t0 = 0;
+  function build() {
+    let media = null, text = null;
+    try { [media, text] = snapshot(); } catch (e) {}
+    const tText = sample(text, Math.round(N * 0.25)).map((p) => p.concat(1));
+    const tMedia = sample(media, N - tText.length).map((p) => p.concat(1.1 + Math.random() * 0.9));
+    pts = tMedia.concat(tText).map(([tx, ty, c, s]) => ({
+      tx, ty, c, s,
+      // each point starts a little above and around its spot, and drifts in
+      ox: gauss() * spread, oy: gauss() * spread * 0.7 - spread * 0.9,
+      d: (ty / H) * 520 + Math.random() * 260,     // a soft wave from top to bottom
+    }));
+    pts.sort((a, b) => (a.c < b.c ? -1 : a.c > b.c ? 1 : 0));
+    t0 = performance.now();
+    requestAnimationFrame(frame);
+  }
+  let started = false;
+  const start = () => { if (started) return; started = true; requestAnimationFrame(build); };
+  Promise.all(waits).then(start);
+  setTimeout(start, 700);
+
+  const TRAVEL = 880, FADE_AT = 1400, FADE = 560;
   let first = true;
   function frame(now) {
     const t = now - t0;
-    const tf = ready ? now - Math.max(tReady, t0 + MIN_CLOUD) : -1;
-    const done = 360 + 140 + FLY + HOLD;
-    const fade = tf > done ? clamp((tf - done) / FADE) : 0;
+    const fade = easeIO(clamp((t - FADE_AT) / FADE));
     ctx.globalAlpha = 1;
     ctx.clearRect(0, 0, W, H);
-    ctx.globalAlpha = 1 - easeIO(fade);
+    ctx.globalAlpha = 1 - fade;
     ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
-    const rot = t * 0.00035, cr = Math.cos(rot), sr = Math.sin(rot);
-    const appear = clamp(t / 300);
-    for (const p of pts) {
-      // where the point sits in the cloud (slowly turning)
-      const ax = cx + (p.gx * cr - p.gy * sr) * (0.92 + 0.08 * Math.sin(t * 0.002 * p.sp));
-      const ay = cy + (p.gx * sr + p.gy * cr);
-      let x = ax, y = ay, c = ink, a = 0.55 * appear, size = p.s;
-      if (tf > 0 && p.tx !== null) {
-        const q = easeIO(clamp((tf - p.d) / FLY));
-        const bend = Math.sin(Math.PI * q) * p.bend;
-        x = ax + (p.tx - ax) * q + bend; y = ay + (p.ty - ay) * q;
-        c = [0, 1, 2].map((k) => Math.round(ink[k] + (p.c[k] - ink[k]) * q));
-        size = p.s + (p.ts - p.s) * q;
-        a = 0.5 + 0.45 * q;
-      } else if (tf > 0) {
-        a *= 1 - clamp(tf / 400);
-      }
-      a *= 1 - easeIO(fade);
+    let cur = '';
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i];
+      const q = clamp((t - p.d) / TRAVEL);
+      if (q <= 0) continue;
+      const e = easeOut(q), inv = 1 - e;
+      const a = Math.min(1, q * 2.2) * 0.9 * (1 - fade);
       if (a < 0.02) continue;
+      if (p.c !== cur) { cur = p.c; ctx.fillStyle = cur; }
       ctx.globalAlpha = a;
-      ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
-      ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      ctx.fillRect(p.tx + p.ox * inv - p.s / 2, p.ty + p.oy * inv - p.s / 2, p.s, p.s);
     }
     ctx.globalAlpha = 1;
     if (first) { first = false; root.classList.remove('boot'); }
@@ -462,7 +446,7 @@ document.addEventListener('click', (e) => {
       held.forEach((v) => { v.removeEventListener('play', v._hold); v.play().catch(() => {}); });
     }
   }
-  requestAnimationFrame(frame);
+  // the static cover in CSS stays until the first frame, so nothing flashes
 })();
 
 // ---------------------------------------------------------------------------
