@@ -61,15 +61,16 @@ document.querySelectorAll('[data-youtube]').forEach((el) => {
 // Card -> case page: carry the video's playback position across, so the
 // morphing frame shows one continuous shot instead of restarting.
 const featureTile = document.querySelector('.tile--feature');
-// The Workspace Advisor card shows its still frame, and plays only while you hover it.
-if (featureTile && !reduceMotion) {
-  const v = featureTile.querySelector('video');
-  if (v) {
-    featureTile.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') v.play().catch(() => {}); });
-    featureTile.addEventListener('pointerleave', () => v.pause());
-    featureTile.addEventListener('focus', () => v.play().catch(() => {}));
-    featureTile.addEventListener('blur', () => v.pause());
-  }
+// Video cards on the landing page show a still frame, and play only while you hover them.
+if (!reduceMotion) {
+  document.querySelectorAll('.is-landing .tile').forEach((tile) => {
+    const v = tile.querySelector('video');
+    if (!v) return;
+    tile.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') v.play().catch(() => {}); });
+    tile.addEventListener('pointerleave', () => v.pause());
+    tile.addEventListener('focus', () => v.play().catch(() => {}));
+    tile.addEventListener('blur', () => v.pause());
+  });
 }
 if (featureTile) {
   featureTile.addEventListener('click', () => {

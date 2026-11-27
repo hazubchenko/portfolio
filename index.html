@@ -26,7 +26,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611272000">
+  <link rel="stylesheet" href="styles.css?v=202611272030">
 </head>
 <body class="is-landing">
   <div class="page">
@@ -62,7 +62,11 @@
         <a href="control-hub.html" class="tile">
           <span class="tile__label" style="view-transition-name:control-hub-title;view-transition-class:vt-title">Cisco Control Hub</span>
           <span class="tile__media" style="--tile-bg:#d9d9d9;view-transition-name:control-hub-media;view-transition-class:vt-media">
-            <img src="assets/control-hub.webp" alt="Auditorium 3D model with a room status card in Control Hub" class="cover">
+            <video class="cover" muted loop playsinline preload="auto"
+                   poster="assets/control-hub-poster.webp"
+                   aria-label="3D meeting rooms in Control Hub, each with its live status and devices">
+              <source src="assets/control-hub-loop.mp4" type="video/mp4">
+            </video>
           </span>
         </a>
 
@@ -83,6 +87,6 @@
       </div>
     </main>
   </div>
-  <script src="main.js?v=202611272000" defer></script>
+  <script src="main.js?v=202611272030" defer></script>
 </body>
 </html>

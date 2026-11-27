@@ -26,7 +26,7 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611272000">
+  <link rel="stylesheet" href="styles.css?v=202611272030">
 </head>
 <body class="is-case">
   <div class="cs">
@@ -51,7 +51,13 @@
             <li>Design leadership</li>
           </ul>
         </div>
-        <div class="cs__hero" style="background:#d9d9d9;view-transition-name:control-hub-media;view-transition-class:vt-media"><img class="cs__fill" src="assets/control-hub.webp" alt="Control Hub workspace view: an auditorium in 3D with its live status and devices" style="object-fit:cover"></div>
+        <div class="cs__hero" style="view-transition-name:control-hub-media;view-transition-class:vt-media">
+          <video class="cs__fill" autoplay muted loop playsinline preload="auto"
+                 poster="assets/control-hub-poster.webp"
+                 aria-label="3D meeting rooms in Control Hub, each with its live status and devices">
+            <source src="assets/control-hub-loop.mp4" type="video/mp4">
+          </video>
+        </div>
       </section>
 
       <section class="cs__summary">
@@ -106,6 +112,6 @@
       </a>
     </main>
   </div>
-  <script src="main.js?v=202611272000" defer></script>
+  <script src="main.js?v=202611272030" defer></script>
 </body>
 </html>
