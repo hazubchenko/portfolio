@@ -13,8 +13,17 @@
       try { t = localStorage.getItem('theme') || 'system'; } catch (e) {}
       document.documentElement.dataset.theme = t;
     })();
+    // First visit or refresh: show the loader (not when moving between pages, going back, or with reduce motion).
+    (function () {
+      try {
+        var nav = performance.getEntriesByType('navigation')[0], type = nav ? nav.type : 'navigate';
+        var fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin;
+        var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!calm && (type === 'reload' || (type === 'navigate' && !fromSite))) document.documentElement.classList.add('boot');
+      } catch (e) {}
+    })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611271715">
+  <link rel="stylesheet" href="styles.css?v=202611271830">
 </head>
 <body class="is-case">
   <div class="cs">
@@ -156,6 +165,6 @@
       </a>
     </main>
   </div>
-  <script src="main.js?v=202611271715" defer></script>
+  <script src="main.js?v=202611271830" defer></script>
 </body>
 </html>

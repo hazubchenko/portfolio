@@ -274,3 +274,190 @@ if (contactForm) {
     els.forEach((el) => { const done = el.classList.contains('is-in'); build(el); if (done) el.classList.add('is-in'); });
   });
 })();
+
+// ---------------------------------------------------------------------------
+// Loader: on first visit or refresh, a fine splatter streams into one dot,
+// which opens like an aperture and reveals the page. Skipped when arriving
+// from another page on the site, going back, or with "reduce motion".
+// ---------------------------------------------------------------------------
+(function bootLoader() {
+  const root = document.documentElement;
+  if (!root.classList.contains('boot')) return;
+  const css = getComputedStyle(root);
+  const BG = css.getPropertyValue('--bg').trim() || '#f7f8fa';
+  const INK = css.getPropertyValue('--text').trim() || '#0b1220';
+
+  const cv = document.createElement('canvas');
+  cv.className = 'boot-canvas';
+  cv.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(cv);
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  let W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const clamp = (v) => Math.max(0, Math.min(1, v));
+  const easeIO = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const easeIO4 = (t) => (t < 0.5 ? 8 * t ** 4 : 1 - Math.pow(-2 * t + 2, 4) / 2);
+  const cx = W / 2, cy = H / 2, M = Math.min(W, H);
+  const N = W < 700 ? 420 : 900;
+  const parts = Array.from({ length: N }, () => ({
+    r0: M * (0.28 + Math.random() * 0.55),
+    a0: Math.random() * Math.PI * 2,
+    d: Math.random() * 360,
+    dur: 820 + Math.random() * 380,
+  }));
+  const at = (p, q) => {
+    const r = p.r0 * Math.pow(1 - q, 1.25), a = p.a0 + q * 1.7;
+    return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+  };
+  const DOT = 6.5, T_DOT = 720, T_OPEN = 1260, T_END = 1960;
+  const diag = Math.hypot(W, H) / 2 + 24;
+  let first = true;
+  const t0 = performance.now();
+
+  function frame(now) {
+    const t = now - t0;
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+
+    // streams: each particle is a short streak along an inward spiral
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 0.6;
+    ctx.lineCap = 'round';
+    for (let b = 0; b < 4; b++) {
+      ctx.globalAlpha = 0.12 + b * 0.12;
+      ctx.beginPath();
+      for (const p of parts) {
+        const q = easeIO(clamp((t - p.d) / p.dur));
+        if (q <= 0 || q >= 0.97) continue;
+        const bucket = Math.min(3, Math.floor(Math.sin(Math.PI * q) * 4));
+        if (bucket !== b) continue;
+        const [x1, y1] = at(p, Math.max(0, q - 0.05));
+        const [x2, y2] = at(p, q);
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    // the dot: settles with a soft spring, like a drop finding its shape
+    const tau = t - T_DOT;
+    let r = tau > 0 ? DOT * (1 - Math.exp(-tau / 110) * Math.cos(tau / 75)) : 0;
+    const open = easeIO4(clamp((t - T_OPEN) / (T_END - T_OPEN - 60)));
+    if (open > 0) {
+      const R = r + open * diag;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = 0.5 * (1 - open);
+      ctx.strokeStyle = INK; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = 1 - clamp((t - T_OPEN) / 90);
+      r = Math.max(0, r * (1 - open * 4));
+    }
+    if (r > 0.2) { ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); }
+    ctx.globalAlpha = 1;
+
+    if (first) { first = false; root.classList.remove('boot'); }
+    if (t < T_END) requestAnimationFrame(frame);
+    else { cv.remove(); root.classList.remove('booting'); }
+  }
+  root.classList.add('booting');
+  requestAnimationFrame(frame);
+})();
+
+// ---------------------------------------------------------------------------
+// Cursor HUD: brackets snap to whatever you point at, with a small live label.
+// Desktop with a mouse only; off with "reduce motion". The real cursor stays.
+// ---------------------------------------------------------------------------
+(function cursorHud() {
+  if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  const hud = document.createElement('div');
+  hud.className = 'hud';
+  hud.setAttribute('aria-hidden', 'true');
+  hud.innerHTML = '<svg class="hud__svg"><path class="hud__lead"/><g class="hud__trail"/></svg>' +
+    '<div class="hud__br"><i></i><i></i><i></i><i></i></div>' +
+    '<div class="hud__chip"><b><em></em><span class="hud__lab"></span></b><span class="hud__xy"></span><span class="hud__act"></span></div>';
+  document.body.appendChild(hud);
+  const br = hud.querySelector('.hud__br'), chip = hud.querySelector('.hud__chip');
+  const lab = hud.querySelector('.hud__lab'), xy = hud.querySelector('.hud__xy'), act = hud.querySelector('.hud__act');
+  const em = hud.querySelector('em'), lead = hud.querySelector('.hud__lead'), trailG = hud.querySelector('.hud__trail');
+
+  const TARGETS = 'a, button, input, textarea, [data-youtube], [data-hud]';
+  const text = (el) => (el.textContent || '').replace(/\s+/g, ' ').trim();
+  const short = (s, n = 30) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+  function describe(el) {
+    if (el.dataset.hud) return [el.dataset.hud, el.dataset.hudAct || ''];
+    if (el.classList.contains('tile')) return ['Project · ' + text(el.querySelector('.tile__label') || el), 'Open case study'];
+    if (el.classList.contains('next')) return ['Next · ' + text(el.querySelector('.next__title') || el), 'Open project'];
+    if (el.dataset.youtube !== undefined) return ['Video · Demo', 'Play'];
+    if (el.dataset.themeSet) return ['Theme · ' + text(el), 'Switch'];
+    if (el.matches('input, textarea')) return ['Field · ' + (el.name || el.id || 'text'), 'Type'];
+    if (el.tagName === 'BUTTON') return ['Button · ' + short(text(el), 22), el.type === 'submit' ? 'Send' : ''];
+    const href = el.getAttribute('href') || '';
+    if (href === './' || href === 'index.html') return ['Home', 'Open'];
+    if (href.startsWith('mailto:')) return ['Email · ' + href.slice(7), 'Write email'];
+    if (/^https?:/.test(href)) { let host = href; try { host = new URL(href).hostname.replace(/^www\./, ''); } catch (e) {} return ['Link · ' + host, 'Open in new tab']; }
+    if (el.classList.contains('nav__item')) return ['Page · ' + text(el), 'Open'];
+    return ['Link · ' + short(text(el), 22), 'Open'];
+  }
+
+  // Text-only links can sit in wide grid cells: bracket the words, not the whole cell.
+  function rectOf(el) {
+    if (!el.querySelector('img, video, svg, iframe, canvas') && !el.matches('input, textarea') && text(el)) {
+      const r = document.createRange(); r.selectNodeContents(el);
+      const b = r.getBoundingClientRect(); if (b.width) return b;
+    }
+    return el.getBoundingClientRect();
+  }
+
+  let mx = -100, my = -100, tgt = null, since = 0, typed = '', lastPush = 0, shown = false;
+  const B = { x: 0, y: 0, w: 0, h: 0 }, C = { x: 0, y: 0 }, trail = [];
+  let info = ['', ''];
+  addEventListener('pointermove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    const el = e.target.closest && e.target.closest(TARGETS);
+    if (el !== tgt) {
+      if (el && !tgt) { Object.assign(B, { x: mx - 10, y: my - 10, w: 20, h: 20 }); Object.assign(C, { x: mx + 24, y: my + 22 }); trail.length = 0; }
+      tgt = el; since = performance.now(); typed = ''; info = el ? describe(el) : info;
+    }
+  }, { passive: true });
+  document.addEventListener('pointerleave', () => { tgt = null; });
+  addEventListener('pagehide', () => { tgt = null; hud.classList.remove('is-on'); });
+
+  function loop(now) {
+    const busy = document.documentElement.classList.contains('booting') || document.body.classList.contains('is-leaving');
+    const on = !!tgt && !busy && tgt.isConnected;
+    if (on !== shown) { shown = on; hud.classList.toggle('is-on', on); }
+    if (on) {
+      const e = rectOf(tgt);
+      const T = { x: e.left - 6, y: e.top - 6, w: e.width + 12, h: e.height + 12 };
+      for (const k of ['x', 'y', 'w', 'h']) B[k] += (T[k] - B[k]) * 0.22;
+      br.style.transform = `translate(${B.x}px, ${B.y}px)`;
+      br.style.width = B.w + 'px'; br.style.height = B.h + 'px';
+      const tx = Math.min(mx + 24, innerWidth - 240), ty = Math.min(my + 22, innerHeight - 64);
+      C.x += (tx - C.x) * 0.25; C.y += (ty - C.y) * 0.25;
+      chip.style.transform = `translate(${C.x}px, ${C.y}px)`;
+      lead.setAttribute('d', `M${mx} ${my} L${mx + 8} ${my + 10} L${C.x} ${C.y + 9}`);
+      lab.textContent = short(info[0], 34);
+      xy.textContent = `X.${String(Math.round(Math.max(0, Math.min(1, mx / innerWidth)) * 999)).padStart(3, '0')} Y.${String(Math.round(Math.max(0, Math.min(1, my / innerHeight)) * 999)).padStart(3, '0')}`;
+      const a = info[1];
+      em.classList.toggle('is-act', !!a);
+      if (a && now - since > 420 && typed.length < a.length + 2) typed = ('▸ ' + a).slice(0, typed.length + 1);
+      act.textContent = a ? typed : '';
+      if (now - lastPush > 130) { trail.push([mx, my]); if (trail.length > 4) trail.shift(); lastPush = now; }
+      trailG.innerHTML = trail.map(([x, y], i) => {
+        const o = ((i + 1) / trail.length) * 0.5;
+        return `<line x1="${x}" y1="${y}" x2="${mx}" y2="${my}" style="opacity:${o * 0.6}"/><rect x="${x - 2.5}" y="${y - 2.5}" width="5" height="5" style="opacity:${o}"/>`;
+      }).join('');
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
