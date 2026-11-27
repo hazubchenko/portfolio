@@ -285,6 +285,17 @@ if (contactForm) {
   });
 })();
 
+// Mark moves between pages on this site, so the loader only plays on a fresh
+// visit or a refresh (read by the small script in each page's <head>).
+document.addEventListener('click', (e) => {
+  const a = e.target.closest && e.target.closest('a[href]');
+  if (!a || a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey) return;
+  try {
+    const u = new URL(a.href, location.href);
+    if (u.origin === location.origin && /\.html$|\/$/.test(u.pathname)) sessionStorage.setItem('hzInternal', '1');
+  } catch (err) {}
+}, true);
+
 // ---------------------------------------------------------------------------
 // Loader: the page is rebuilt from a point cloud. A soft Gaussian cloud of
 // points gathers, then each point flies to a pixel of the real page (images,

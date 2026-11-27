@@ -17,16 +17,16 @@
     (function () {
       try {
         var nav = performance.getEntriesByType('navigation')[0], type = nav ? nav.type : 'navigate';
-        var seen = false;
-        try { seen = sessionStorage.getItem('hzSeen') === '1'; sessionStorage.setItem('hzSeen', '1'); } catch (e) {}
-        var fromSite = false;
-        try { fromSite = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
+        // Moving between pages on this site is marked just before leaving (see main.js),
+        // so a fresh visit or a refresh always gets the loader, even inside a preview frame.
+        var internal = false;
+        try { internal = sessionStorage.getItem('hzInternal') === '1'; sessionStorage.removeItem('hzInternal'); } catch (e) {}
         var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (!calm && (type === 'reload' || (type === 'navigate' && !seen && !fromSite))) document.documentElement.classList.add('boot');
+        if (!calm && type !== 'back_forward' && !(type === 'navigate' && internal)) document.documentElement.classList.add('boot');
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="styles.css?v=202611271915">
+  <link rel="stylesheet" href="styles.css?v=202611271930">
 </head>
 <body class="is-case">
   <div class="cs">
@@ -168,6 +168,6 @@
       </a>
     </main>
   </div>
-  <script src="main.js?v=202611271915" defer></script>
+  <script src="main.js?v=202611271930" defer></script>
 </body>
 </html>
