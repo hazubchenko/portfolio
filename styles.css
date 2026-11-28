@@ -629,3 +629,6 @@ html.boot body::after { content: ""; position: fixed; inset: 0; z-index: 1000; b
 .cs .cs__body a.cs__chapter, .cs .cs__body a.cs__chapter:hover { text-decoration: none; }
 .cs__chapter .cs__big { transition: opacity 300ms ease; }
 .cs__chapter:hover .cs__big { opacity: 0.6; }
+
+.cs__frame--ui { aspect-ratio: 3 / 2; background: #f4f4f5; }
+.cs__credit { text-align: center; font-size: 14px; font-weight: 300; color: color-mix(in srgb, var(--text) 55%, transparent); margin-top: -40px; }
