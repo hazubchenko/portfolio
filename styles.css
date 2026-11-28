@@ -617,3 +617,15 @@ html.boot body::after { content: ""; position: fixed; inset: 0; z-index: 1000; b
 .tile__shine { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 400ms ease;
   background: radial-gradient(circle at var(--sx, 50%) var(--sy, 50%), rgba(255, 255, 255, 0.18), transparent 55%); }
 .tile.is-tilting .tile__shine { opacity: 1; }
+
+/* ---------- Employer mark, Advisor and Control Hub links ---------- */
+.org { white-space: nowrap; }
+.org__mark { height: 0.62em; width: auto; margin: 0 0.28em 0 0.12em; vertical-align: 0.02em; }
+.intro span:first-child .org { color: var(--text); }
+.tile__kicker { margin-left: 10px; color: color-mix(in srgb, var(--text) 50%, transparent); }
+.cs__kicker { margin-top: 14px; font-size: 14px; font-weight: 300; color: color-mix(in srgb, var(--text) 60%, transparent); }
+.cs__kicker a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.cs__chapter { display: flex; flex-direction: column; gap: 10px; color: inherit; text-decoration: none; }
+.cs .cs__body a.cs__chapter, .cs .cs__body a.cs__chapter:hover { text-decoration: none; }
+.cs__chapter .cs__big { transition: opacity 300ms ease; }
+.cs__chapter:hover .cs__big { opacity: 0.6; }
