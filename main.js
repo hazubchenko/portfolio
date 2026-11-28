@@ -261,7 +261,7 @@ if (contactForm) {
     const text = el.dataset.text || el.textContent.trim();
     el.dataset.text = text;
     el.setAttribute('aria-label', text);
-    el.innerHTML = text.split(/\s+/).map((w) => `<span class="w" aria-hidden="true">${w}</span>`).join(' ');
+    el.innerHTML = text.split(/[ \t\n\r]+/).map((w) => `<span class="w" aria-hidden="true">${w}</span>`).join(' ');
     const lines = [];
     let top = null;
     el.querySelectorAll('.w').forEach((w) => {
