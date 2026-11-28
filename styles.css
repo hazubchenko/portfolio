@@ -632,3 +632,5 @@ html.boot body::after { content: ""; position: fixed; inset: 0; z-index: 1000; b
 
 .cs__frame--ui { aspect-ratio: 3 / 2; background: #f4f4f5; }
 .cs__credit { text-align: center; font-size: 14px; font-weight: 300; color: color-mix(in srgb, var(--text) 55%, transparent); margin-top: -40px; }
+.cs__shot--wide > .sheet { width: 62%; }
+@media (max-width: 860px) { .cs__shot--wide > .sheet { width: 100%; } }
